@@ -58,29 +58,6 @@ bubba (https://math.stackexchange.com/users/31744/bubba).%
 \PrintBackRefs{\CurrentBib}
 
 \bibitem [\protect \citeauthoryear {%
-de Casteljau%
-}{%
-de Casteljau%
-}{%
-{\protect \APACyear {1959}}%
-}]{%
-DECAST:1959}
-\APACinsertmetastar {%
-DECAST:1959}%
-\begin{APACrefauthors}%
-de Casteljau, P.%
-\end{APACrefauthors}%
-\unskip\
-\newblock
-\APACrefYearMonthDay{1959}{}{}.
-\newblock
-{\BBOQ}\APACrefatitle {Outillages m{\'e}thodes calcul} {Outillages m{\'e}thodes
-  calcul}.{\BBCQ}
-\newblock
-\APACjournalVolNumPages{Andr{\'e} Citro{\"e}n Automobiles SA, Paris}{}{}{}.
-\PrintBackRefs{\CurrentBib}
-
-\bibitem [\protect \citeauthoryear {%
 Prautzsch%
 , Boehm%
 \BCBL {}\ \BBA {} Paluszny%

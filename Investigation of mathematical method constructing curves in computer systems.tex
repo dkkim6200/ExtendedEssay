@@ -1,4 +1,4 @@
-\documentclass[12pt, oneside]{article}   	% use "amsart" instead of "article" for AMSLaTeX format
+\documentclass[11pt, oneside]{article}   	% use "amsart" instead of "article" for AMSLaTeX format
 \usepackage{geometry}                		% See geometry.pdf to learn the layout options. There are lots.
 \geometry{letterpaper}                   		% ... or a4paper or a5paper or ... 
 \usepackage[parfill]{parskip}    		% Activate to begin paragraphs with an empty line rather than an indent
@@ -7,7 +7,10 @@
 \usepackage{amssymb}
 \usepackage{amsmath}
 \usepackage{amsthm}
+
 \usepackage{tikz}
+\usetikzlibrary{decorations.pathreplacing}
+
 \usepackage{float}
 \usepackage{titlesec}
 \newcommand{\sectionbreak}{\clearpage}
@@ -15,14 +18,19 @@
 \usepackage{apacite}
 \usepackage{url}
 
-\linespread{2}
+\linespread{1.25}
 
 \usepackage{titling}
 \renewcommand\maketitlehooka{\null\mbox{}\vfill}
 \renewcommand\maketitlehookd{\vfill\null}
 
+\theoremstyle{definition}
+\newtheorem{example}{Example}[section]
+
 \newtheorem{theorem}{Theorem}
 \renewcommand{\qedsymbol}{}
+
+\usepackage{scrextend}
 
 \numberwithin{figure}{section}
 
@@ -55,13 +63,19 @@ This paper aims to investigate the mathematics behind how a computer system gene
 %==========================================================================================
 
 \section{Linear Interpolation}
-Given two points, \((x_0, y_0)\) and \((x_1,y_1)\) with \(x_0 < x_1\), a {\em linear interpolation} is construction of a new set of \(y\) from \(x\) values within \([x_0, x_1]\). The formula of linear interpolation can be given as the relationship of the slope of the line connecting the starting and end point with that of line connecting the interpolated point with the starting point, or
+
+Straight lines are one of the easiest shapes one can imagine and draw, because of their simplicity to understand and manipulate. Such holds true even for computers. Graphically, drawing straight lines is the most rudimentary job a computer can perform. However, because it is so easy to render, it forms the fundamentals of how computers can render sophisticated curves and surfaces onto a screen.
+
+Lines can be thought of as the shortest path that connects two points. A {\em linear interpolation}, then, is calculating which position on the line one would arrive on if one was to travel certain distance or time. Mathematically, given two points, \((x_0, y_0)\) and \((x_1,y_1)\) with \(x_0 < x_1\), a linear interpolation is construction of a new set of \(y\) from \(x\) values within \([x_0, x_1]\). The formula of linear interpolation can be given as a relationship of the slopes of the lines connecting the starting and end point with that of line connecting the interpolated point with the starting point, or
 
 \begin{equation}
 \frac{y-y_0}{x-x_0}=\frac{y_1-y_0}{x_1-x_0}
 \end{equation}
 
-Fig. 2.1 shows an example of linear interpolation between \((1,1)\) and \((3,2)\).
+Eq. (1) is stating that, if a person was to travel over a line, the ratio of the distances at which one travelled vertically over the horizontal distance travelled must be the same no matter the position he or she lies on the line.
+
+\begin{quote}
+\begin{example} Fig. 2.1 shows an example of linear interpolation between \((1,1)\) and \((3,2)\).
 
 \begin{figure}[h]
 	\centering
@@ -89,7 +103,7 @@ The equation of linear interpolation in Fig. 2.1 can be defined as following:
 \frac{y-1}{x-1}=\frac{2-1}{3-1},1 \leq x \leq 2
 \end{equation}
 
-Eq. (2) is stating that the slope of the line between (1, 1) and (3, 2), and any point along the interpolated line (called the {\em interpolant}) is the same. Solving this for \(x\) gives us the following:
+The line shown in Fig 2.1 is called the \textbf{interpolant}, which can be thought of, literally, as a shortest path between two points. Solving Eq. (2) for \(x\) gives us the following:
 
 \begin{displaymath}
 y=\frac{1}{2}(x-1)+1,
@@ -98,9 +112,41 @@ y=\frac{1}{2}(x-1)+1,
 y=\frac{1}{2}x+\frac{1}{2}
 \end{equation}
 
-In fact, this is now in slope-intercept form of an equation of a linear function, \(y=mx+b\). This signifies that linear interpolation is a linear function with a restricted domain between two points.
+In fact, this is now in slope-intercept form of an equation of a linear function, \(y=mx+b\)! This signifies that linear interpolation is nothing more than a linear function with a restricted domain between two points.
 
-Instead of defining an interpolation in respect to \(x\), we can do so with another variable \(t\) within \([0,1]\) and form a parametric equation of this linear interpolation. The example above can be used to demonstrate this, as shown in Fig. 2.2.
+\end{example}
+\end{quote}
+
+
+\section{Parametric Equations}
+The previous section showed that linear interpolation is essentially plotting a point on a line using a linear function. However, such is not possible with our original definition of linear interpolation when the line cannot be defined using a function. For instance, consider a straight vertical line as shown in Fig 3.1.
+
+\begin{figure}[h]
+	\centering
+	\begin{tikzpicture}[scale=1.5]
+		\draw [->] (0,0) -- (0,4) node[align=left, right] {\(y\)};
+		\draw [->] (0,0) -- (4,0) node[align=left, above] {\(x\)};
+		\draw (0,0) node[anchor=north east,fill=white] {0};
+		\foreach \x/\xtext in {1, 2, 3} 
+			\draw (\x,1pt) -- (\x,-1pt) node[anchor=north,fill=white] {$\xtext$};
+		\foreach \y/\ytext in {1, 2, 3} 
+			\draw (1pt,\y) -- (-1pt,\y) node[anchor=east,fill=white] {$\ytext$};
+		
+		\path	(2,1) node(p0) {} 
+			(2,3) node(p1) {};
+		\draw (p0) -- (p1);
+		\filldraw (p0) circle (1pt) node[align=center, below] {\(P_0(1,1)\)};
+		\filldraw (p1) circle (1pt) node[align=center, above] {\(P_1(3,2)\)};
+	\end{tikzpicture}
+	\caption{A vertical linear interpolation}
+\end{figure}
+
+In order for a line to be defined by a function, it must pass the Vertical Line Test, which states that there can only be one and only one \(y\) value for each \(x\) value. The line shown in Fig 3.1 obviously does not pass this condition, since there are infinitely many \(y\) values for \(x=2\).
+
+However, by redefining linear interpolation with a set of parametric equations, one can easily overcome this apparent problem. Instead of defining an interpolation in respect to \(x\), we can do so with another variable \(t\) within \([0,1]\), and define different equations for the values of \(y\) and \(x\) with no explicitly direct relationship between them. This new variable \(t\) can be thought of as the time, or the ratio of how much of the path one have travelled from the initial point.
+
+\begin{quote}
+\begin{example}
 
 \begin{figure}[h]
 	\centering
@@ -131,10 +177,53 @@ Instead of defining an interpolation in respect to \(x\), we can do so with anot
 		\draw (1+0.05,1.23) -- (1-0.05,1.27);
 		\draw (1+0.05,1.73) -- (1-0.05,1.77);
 	\end{tikzpicture}
-	\caption{Linear interpolation between two points}
+	\caption{Parametric linear interpolation for \(t=0.5\)}
 \end{figure}
 
-Fig. 2.2 shows a linear interpolation at \(t=\frac{1}{2}\). At \(t=\frac{1}{2}\), the resulting point at halfway between \(P_0\) and \(P_1\) in both directions of the \(x\)- and \(y\)-axes. In the same way, at \(t=\frac{1}{4}\) and \(t=\frac{3}{4}\), the resulting points are one-quarter and three quarters of the way, respectively, between the two end points in both axes. This \(t\) value is essentially the ratio that describes how far the interpolated point is from the end, just as a GPS device would let one know the percentage in which the person has driven from the starting point. As such, a linear interpolation between \((x_0, y_0)\) and \((x_1,y_1)\) can be parametrically defined as following:
+Fig. 3.2 shows a linear interpolation at \(t=0.5\). At \(t=0.5\), the resulting point at halfway between \(P_0\) and \(P_1\) in both directions of the \(x\)- and \(y\)-axes. This can be thought of as a driver having travelled 50\% of the path.
+\end{example}
+\end{quote}
+
+\begin{quote}
+\begin{example}
+
+\begin{figure}[h]
+	\centering
+	\begin{tikzpicture}[scale=2]
+		\draw [->] (0,0) -- (0,3) node[align=left, right] {\(y\)};
+		\draw [->] (0,0) -- (4,0) node[align=left, above] {\(x\)};
+		\draw (0,0) node[anchor=north east,fill=white] {0};
+		\foreach \x/\xtext in {1, 2, 3} 
+			\draw (\x,1pt) -- (\x,-1pt) node[anchor=north,fill=white] {$\xtext$};
+		\foreach \y/\ytext in {1, 2} 
+			\draw (1pt,\y) -- (-1pt,\y) node[anchor=east,fill=white] {$\ytext$};
+		
+		\path	(1,1) node(p0) {} 
+			(3,2) node(p1) {};
+		\filldraw (p0) circle (1pt) node[align=center, below left] {\(P_0(1,1)\)};
+		\filldraw (p1) circle (1pt) node[align=center, above] {\(P_1(3,2)\)};
+		\draw (p0) -- (p1);
+		\draw (1,1) -- (3,1);
+		\draw (1,1) -- (1,2);
+		\draw[dashed] (1.5,1) -- (1.5,1.25);
+		\draw[dashed] (1,1.25) -- (1.5,1.25);
+		\filldraw (1.5,1.25) circle (1pt) node[align=center, right] {\(P'(1.5,1.25)\)};
+		\draw [decorate,decoration={brace,amplitude=10pt,mirror},xshift=0pt,yshift=0pt] (1,1) -- (1.5,1) node [black,midway,yshift=-20pt] {\footnotesize \(0.25\)};
+		\draw [decorate,decoration={brace,amplitude=10pt,mirror},xshift=0pt,yshift=0pt] (1.5,1) -- (3,1) node [black,midway,yshift=-20pt] {\footnotesize \(0.75\)};
+		
+		\draw [decorate,decoration={brace,amplitude=10pt},xshift=0pt,yshift=0pt] (1,1) -- (1,1.25) node [black,midway,xshift=-20pt] {\footnotesize \(0.25\)};
+		\draw [decorate,decoration={brace,amplitude=10pt},xshift=0pt,yshift=0pt] (1,1.25) -- (1,2) node [black,midway,xshift=-20pt] {\footnotesize \(0.75\)};
+	\end{tikzpicture}
+	\caption{Parametric linear interpolation for \(t=0.25\)}
+\end{figure}
+
+In the same way, at \(t=0.25\), the resulting points are one-quarter of the way between the initial and the terminal points in both axes, which is like travelling 25\% of the path since the starting point.
+\end{example}
+\end{quote}
+
+As shown in the two examples above, the \(t\) value is analogous to the ratio in which the person has travelled from the initial point that a GPS device would let one know.
+
+As such, a linear interpolation between \((x_0, y_0)\) and \((x_1,y_1)\) can be parametrically defined as following:
 \begin{equation}
 x(t)=x_0 + (x_1 - x_0)t
 \end{equation}
@@ -142,37 +231,23 @@ x(t)=x_0 + (x_1 - x_0)t
 y(t)=y_0 + (y_1 - y_0)t
 \end{equation}
 
-Note that at \(t=0\), the interpolated point is at \((x_0, y_0)\), the starting point, and at \(t=0\), it is at \((x_1,y_1)\), the end point.
+Note that at \(t=0\), the interpolated point is at \((x_0, y_0)\), the initial point, and at \(t=0\), it is at \((x_1,y_1)\), the terminal point. This can be considered as being at the initial point when one has travelled 0\% of the path, and as being at the terminal point when one has travelled 100\% of the path.
 
-Let \(P_0\) and \(P_1\) be position vectors, where \(P_0=(x_0,y_0)\) and \(P_1=(x_1,y_1)\). We can now combine eq. (4) and (5) into one vector equation:
+Parametric equations (4) and (5), however, looks to be very similar. In fact, it can be combined to form a 2-dimensional (2D) vector equation. Let \(P_0\) and \(P_1\) be position vectors, where \(P_0=(x_0,y_0)\) and \(P_1=(x_1,y_1)\). Then,
 
 \begin{equation}
 P(t)=P_0 + (P_1 - P_0)t,
 \end{equation}
 
-where \(P(t)\) is a function that linearly interpolates a point between \(P_0\) and \(P_1\) for \(t \in [0,1]\). Eq. (6) can be rearranged as following:
+where \(P(t)\) is a function that linearly interpolates a point between \(P_0\) and \(P_1\) for \(t \in [0,1]\). Analogously, this is a vector addition between the initial location and the path a driver has travelled so far at time \(t\). Eq. (6) can be rearranged as following:
 
 \begin{equation}
 P(t)={P_0}(1-t) + {P_1}t,
 \end{equation}
 
-Eq. (7) further emphasizes the analogous nature of \(t\) being the ``ratio'' of the resulting point \(P\) with respect to \(P_0\) and \(P_1\) \fullcite{PRAUTZ:2013}. More specifically, the ratio \((1-t):t\) equals to the ratio of the distance of \(P\) from \(P_0\) and \(P_1\), respectively.
+Eq. (7) further emphasizes the analogous nature of \(t\) being the ``ratio'' \fullcite{PRAUTZ:2013} of the resulting point \(P\) with respect to the initial and final points. More specifically, the ratio \(t:(1-t)\) equals to the ratio of the distance from the current point \(P\) with the initial point \(P_0\) and the final point \(P_1\), respectively, as shown in Fig. 3.4.
 
-%==========================================================================================
-%==========================================================================================
-%============================== RECURSIVE LINEAR INTERPOLATION ============================
-%==========================================================================================
-%==========================================================================================
-
-\section{Recursive Linear Interpolation and De Casteljau Algorithm}
-
-Thus far, we have investigated on the method of producing a straight line with linear interpolation. This section will study how linear interpolation can be recursively repeated to produce a smooth curve.
-
-\subsection{EXAMPLE 1: Recursive Linear Interpolation with 3 Points}
-
-Let \(P_0=(1,1)\), \(P_1=(2,2)\) and \(P_2=(3,1)\). These points are commonly referred to as the {\em control points} of the interpolated curve \cite{PRAUTZ:2013}. We can easily perform linear interpolations between \(P_0\) and \(P_1\), and between \(P_1\) and \(P_2\), as shown in Fig 3.1.
-
-\begin{figure}[H]
+\begin{figure}[h]
 	\centering
 	\begin{tikzpicture}[scale=2]
 		\draw [->] (0,0) -- (0,3) node[align=left, right] {\(y\)};
@@ -183,461 +258,19 @@ Let \(P_0=(1,1)\), \(P_1=(2,2)\) and \(P_2=(3,1)\). These points are commonly re
 		\foreach \y/\ytext in {1, 2} 
 			\draw (1pt,\y) -- (-1pt,\y) node[anchor=east,fill=white] {$\ytext$};
 		
-		\filldraw (1,1) circle (1pt) node[align=center, below] {\(P_0(1,1)\)};
-		\filldraw (2,2) circle (1pt) node[align=center, above] {\(P_1(2,3)\)};
-		\filldraw (3,1) circle (1pt) node[align=center, below] {\(P_2(3,1)\)};
+		\path	(1,1) node(p0) {} 
+			(3,2) node(p1) {};
+		\filldraw (p0) circle (2pt) node[align=center, below left] {\(P_0(1,1)\)};
+		\filldraw (p1) circle (2pt) node[align=center, above right] {\(P_1(3,2)\)};
+		\draw (p0) -- (p1);
+		\draw[ultra thick] (p0) -- (1.5,1.25);
+		\filldraw (1.5,1.25) circle (2pt) node[align=center, below right] {\(P'(1.5,1.25)\)};
 		
-		\draw (1,1) -- (2,2) -- (3,1);
+		\draw [decorate,decoration={brace,amplitude=10pt},xshift=0pt,yshift=0pt] (1,1) -- (1.5,1.25) node [black,midway,yshift=20pt,xshift=-10pt] {\footnotesize \(0.25\)};
+		\draw [decorate,decoration={brace,amplitude=10pt},xshift=0pt,yshift=0pt] (1.5,1.25) -- (3,2) node [black,midway,yshift=20pt,xshift=-10pt] {\footnotesize \(0.75\)};
 	\end{tikzpicture}
-	\caption{Linear interpolation between three points}
+	\caption{Ratio of \((1-t)\) and \(t\) for \(t=0.25\)}
 \end{figure}
-
-Let \(P_{0,1}\) be the linearly interpolated point between \(P_{0}\) and \(P_{1}\) at \(t=0.5\). Similarly, let \(P_{1,2}\) be the linearly interpolated point between \(P_{1}\) and \(P_{2}\) at \(t=0.5\). The two newly interpolated points will be at the half point of their interpolants. Between these new points, another linear interpolation can be conducted, as shown in Fig. 3.2 with a dashed line.
-
-\begin{figure}[H]
-	\centering
-	\begin{tikzpicture}[scale=2]
-		\draw [->] (0,0) -- (0,3) node[align=left, right] {\(y\)};
-		\draw [->] (0,0) -- (4,0) node[align=left, above] {\(x\)};
-		\draw (0,0) node[anchor=north east,fill=white] {0};
-		\foreach \x/\xtext in {1, 2, 3} 
-			\draw (\x,1pt) -- (\x,-1pt) node[anchor=north,fill=white] {$\xtext$};
-		\foreach \y/\ytext in {1, 2} 
-			\draw (1pt,\y) -- (-1pt,\y) node[anchor=east,fill=white] {$\ytext$};
-		
-		\filldraw (1,1) circle (1pt) node[align=center, below] {\(P_0\)};
-		\filldraw (2,2) circle (1pt) node[align=center, above] {\(P_1\)};
-		\filldraw (3,1) circle (1pt) node[align=center, below] {\(P_2\)};
-		
-		\draw (1,1) -- (2,2) -- (3,1);
-		
-		\filldraw (1.5,1.5) circle (1pt) node[align=center, above, left] {\(P_{0,1}\)};
-		\filldraw (2.5,1.5) circle (1pt) node[align=center, right, above] {\(P_{1,2}\)};
-		\draw[dashed] (1.5,1.5) -- (2.5,1.5);
-	\end{tikzpicture}
-	\caption{Visual representation of recursive linear approximation}
-\end{figure}
-
-Finally, let \(P'\) be the linearly interpolated point between \(P_{0,1}\) and \(P_{2,3}\) at \(t=0.5\). \(P'\), then, is the point on the interpolated curve of the control points \(P_{0}\), \(P_{1}\), and \(P_{2}\) at \(t=0.5\), as shown in Fig. 3.3. Repeating this technique for \(t \in [0,1]\) allows one to plot the interpolated curve, as shown in Fig. 3.4.
-
-\begin{figure}[H]
-	\centering
-	\begin{tikzpicture}[scale=2]
-		\draw [->] (0,0) -- (0,3) node[align=left, right] {\(y\)};
-		\draw [->] (0,0) -- (4,0) node[align=left, above] {\(x\)};
-		\draw (0,0) node[anchor=north east,fill=white] {0};
-		\foreach \x/\xtext in {1, 2, 3} 
-			\draw (\x,1pt) -- (\x,-1pt) node[anchor=north,fill=white] {$\xtext$};
-		\foreach \y/\ytext in {1, 2} 
-			\draw (1pt,\y) -- (-1pt,\y) node[anchor=east,fill=white] {$\ytext$};
-		
-		\filldraw (1,1) circle (1pt) node[align=center, below] {\(P_0\)};
-		\filldraw (2,2) circle (1pt) node[align=center, above] {\(P_1\)};
-		\filldraw (3,1) circle (1pt) node[align=center, below] {\(P_2\)};
-		
-		\draw (1,1) -- (2,2) -- (3,1);
-		
-		\filldraw (1.5,1.5) circle (1pt) node[align=center, above, left] {\(P_{0,1}\)};
-		\filldraw (2.5,1.5) circle (1pt) node[align=center, right, above] {\(P_{1,2}\)};
-		\draw[dashed] (1.5,1.5) -- (2.5,1.5);
-		
-		\filldraw (2,1.5) circle (1pt) node[align=center, below] {\(P'\)};
-	\end{tikzpicture}
-	\caption{Interpolated point at \(t=0.5\)}
-\end{figure}
-
-\begin{figure}[H]
-	\centering
-	\begin{tikzpicture}[scale=2]
-		\draw [->] (0,0) -- (0,3) node[align=left, right] {\(y\)};
-		\draw [->] (0,0) -- (4,0) node[align=left, above] {\(x\)};
-		\draw (0,0) node[anchor=north east,fill=white] {0};
-		\foreach \x/\xtext in {1, 2, 3} 
-			\draw (\x,1pt) -- (\x,-1pt) node[anchor=north,fill=white] {$\xtext$};
-		\foreach \y/\ytext in {1, 2} 
-			\draw (1pt,\y) -- (-1pt,\y) node[anchor=east,fill=white] {$\ytext$};
-		
-		\filldraw (1,1) circle (1pt) node[align=center, below] {\(P_0\)};
-		\filldraw (2,2) circle (1pt) node[align=center, above] {\(P_1\)};
-		\filldraw (3,1) circle (1pt) node[align=center, below] {\(P_2\)};
-		
-		\draw (1,1) -- (2,2) -- (3,1);
-		
-		\filldraw (2,1.5) circle (1pt) node[align=center, below] {\(t=0.5\)};
-		\filldraw (1.5,1.375) circle (1pt) node[align=center, above left] {\(t=0.25\)};
-		\filldraw (2.5,1.375) circle (1pt) node[align=center, above right] {\(t=0.75\)};
-		
-		\draw (1,1) .. controls (1.25,1.25) and (2,2) .. (3,1);
-	\end{tikzpicture}
-	\caption{Illustration of the interpolated curve}
-\end{figure}
-
-This recursively repeated linear interpolation is called the De Casteljau construction \fullcite{DECAST:1959}. This is commonly used to easily evaluate and illustrate a B\'{e}zier curve. The details of the B\'{e}zier curve itself will be discussed in the latter part of this essay, and instead, this section will be investigating how a number of rudimentary mathematical ideas led to the establishment of the concept of B\'{e}zier curve and deduce its properties.
-
-The De Casteljau construction can be performed with higher number of control points.
-
-\subsection{EXAMPLE 2: Recursive Linear Interpolation with 4 Points}
-
-In this example, we will find the interpolated point at \(t=0.4\). Let \(P_{0}=(1,1)\), \(P_{1}=(2,3)\), \(P_{2}=(3,3)\) and \(P_{3}=(4,1)\).
-
-First, we perform linear interpolation between each of the consecutive points. Then, the new interpolated point at \(t=0.4\) can be produced for each of the linear interpolations. We now repeat the same technique for the newly obtained points, until we are left with one single point, \(P'\). Fig. 3.5 gives a visual illustration of this recursive construction.
-
-\begin{figure}[H]
-	\centering
-	\begin{tikzpicture}[scale=3]
-		\draw [->] (0,0) -- (0,4) node[align=left, right] {\(y\)};
-		\draw [->] (0,0) -- (5,0) node[align=left, above] {\(x\)};
-		\draw (0,0) node[anchor=north east,fill=white] {0};
-		\foreach \x/\xtext in {1, 2, 3, 4} 
-			\draw (\x,1pt) -- (\x,-1pt) node[anchor=north,fill=white] {$\xtext$};
-		\foreach \y/\ytext in {1, 2, 3} 
-			\draw (1pt,\y) -- (-1pt,\y) node[anchor=east,fill=white] {$\ytext$};
-			
-		\draw (3.5,3.5) -- (4.8, 3.5) node[pos=0, left]{\(t\)} node[pos=0, above]{0} node[pos=0.4, below]{0.4} node[pos=1, above]{1};
-		\draw[ultra thick] (3.5,3.5) -- (4.02, 3.5);
-		\draw (3.5,3.5-0.05) -- (3.5,3.5+0.05);
-		\draw (4.02,3.5-0.05) -- (4.02,3.5+0.05);
-		\draw (4.8,3.5-0.05) -- (4.8,3.5+0.05);
-		
-		\filldraw (1,1) circle (1pt) node[align=center, below] {\(P_0\)};
-		\filldraw (2,3) circle (1pt) node[align=center, above] {\(P_1\)};
-		\filldraw (3,3) circle (1pt) node[align=center, above] {\(P_2\)};
-		\filldraw (4,1) circle (1pt) node[align=center, below] {\(P_3\)};
-		
-		\draw (1,1) -- (2,3) -- (3,3) -- (4,1);
-		
-		\filldraw (1.4,1.8) circle (1pt) node[align=center, above left] {\(P_{0,1}\)};
-		\filldraw (2.4,3) circle (1pt) node[align=center, above] {\(P_{1,2}\)};
-		\filldraw (3.4,2.2) circle (1pt) node[align=center, above right] {\(P_{2,3}\)};
-		
-		\draw[dashed] (1.4,1.8) -- (2.4,3) -- (3.4,2.2);
-		
-		\filldraw (1.8,2.28) circle (1pt) node[align=center, below right] {\(P_{0,1,2}\)};
-		\filldraw (2.8,2.68) circle (1pt) node[align=center, below] {\(P_{2,3,4}\)};
-		\draw[dotted] (1.8,2.28) -- (2.8,2.68);
-		
-		\filldraw (2.2,2.44) circle (1pt) node[align=center, below right]{\(P'\)};
-	\end{tikzpicture}
-	\caption{Illustration of the interpolated curve with 4 control points}
-\end{figure}
-
-\subsection{The De Casteljau Algorithm}
-
-The two aforementioned examples allows a generalized set of procedures for the De Casteljau construction to be deduced. Given \(n+1\) control points \(P_0, P_1, P_2, \ldots P_{n-1}, P{n}\), an interpolation at \(t \in [0,1]\) can be obtained as following:
-
-\begin{enumerate}
-\item Create a new set of linearly interpolated points at \(t\) for each of the consecutive pair of control points.
-\item Repeat \#1 for newly interpolated points, until only a single point is left.
-\end{enumerate}
-
-Note how this algorithm repeats itself until the objective it met. In other words, this algorithm is defined in terms of itself, meaning that this is a recursive procedure. The De Casteljau algorithm can now be expressed in a form of a mathematical equation.
-%In the following section, we will reverse the algorithm and deduce a generalized formula for obtaining a new interpolated point from a set of control points of an arbitrary number.
-
-Let \(P_{a...b}(t)\) be a function that gives an interpolated point from a set of control points \(P_a, P_{a+1}, P_{a+2}, \ldots P_{b-1}, P_{b}\), where \(a, b \in \mathbb{Z}_{\geq0}\) and \(a < b\). Also, let the given control points be \(P_0, P_1, P_2, \ldots P_{n-1}, P{n}\). By using the De Casteljau algorithm and the formula of linear interpolation from Eq. (7) we can derive the generalized formula to express the interpolation of a curve.
-
-\begin{displaymath}
-P_{0...1}(t)=P_{0}(1-t)+P_{1}t
-\end{displaymath}
-\begin{displaymath}
-P_{1...2}(t)=P_{1}(1-t)+P_{2}t
-\end{displaymath}
-\begin{displaymath}
-\vdots
-\end{displaymath}
-\begin{displaymath}
-P_{n-1...n}(t)=P_{n-1}(1-t)+P_{n}t
-\end{displaymath}
-
-We can now use the newly created linear interpolation functions to perform another set of linear interpolation.
-
-\begin{displaymath}
-P_{0...2}(t)=[P_{0...1}(t)](1-t)+[P_{1...2}(t)]t
-\end{displaymath}
-\begin{displaymath}
-P_{1...3}(t)=[P_{1...2}(t)](1-t)+[P_{2...3}(t)]t
-\end{displaymath}
-\begin{displaymath}
-\vdots
-\end{displaymath}
-\begin{displaymath}
-P_{n-2...n}(t)=[P_{n-2...n-1}(t)](1-t)+[P_{n-1...n}(t)](t)t
-\end{displaymath}
-
-The linear interpolation functions in the right-hand side of the equations can be substituted with their original function definitions.
-
-\begin{displaymath}
-P_{0...2}(t)=[P_{0}(1-t)+P_{1}t](1-t)+[P_{1}(1-t)+P_{2}t]t
-\end{displaymath}
-\begin{displaymath}
-P_{1...3}(t)=[P_{1}(1-t)+P_{2}t](1-t)+[P_{2}(1-t)+P_{3}t]t
-\end{displaymath}
-\begin{displaymath}
-\vdots
-\end{displaymath}
-\begin{displaymath}
-P_{n-2...n}(t)=[P_{n-2}(1-t)+P_{n-1}t](1-t)+[P_{n-1}(1-t)+P_{n}t](t)t
-\end{displaymath}
-
-Simplifying the equations above,
-
-\begin{displaymath}
-P_{0...2}(t)=P_{0}(1-t)^2+2P_{1}(1-t)t+P_{2}t^2
-\end{displaymath}
-\begin{displaymath}
-P_{1...3}(t)=P_{1}(1-t)^2+2P_{2}(1-t)t+P_{3}t^2
-\end{displaymath}
-\begin{displaymath}
-\vdots
-\end{displaymath}
-\begin{displaymath}
-P_{n-2...n}(t)=P_{n-2}(1-t)^2+2P_{n-1}(1-t)t+P_{n}t^2
-\end{displaymath}
-
-These interpolation functions, again, can be used to perform another set of interpolation.
-
-\begin{displaymath}
-P_{0...3}(t)=P_{0...2}(1-t)+P_{1...3}t
-\end{displaymath}
-\begin{displaymath}
-P_{1...4}(t)=P_{1...3}(1-t)+P_{2...4}t
-\end{displaymath}
-\begin{displaymath}
-\vdots
-\end{displaymath}
-\begin{displaymath}
-P_{n-3...n}(t)=P_{n-3...n-1}(1-t)+P_{n-2...n}t
-\end{displaymath}
-
-Substituting the interpolation functions in the right-hand side with their function definitions simplifies to be the following:
-
-\begin{displaymath}
-P_{0...3}(t)=P_{0}(1-t)^{3}+3P_{1}(1-t)^{2}t+3P_{2}(1-t)t^2+P_{3}t^3
-\end{displaymath}
-\begin{displaymath}
-P_{1...4}(t)=P_{1}(1-t)^{3}+3P_{2}(1-t)^{2}t+3P_{3}(1-t)t^2+P_{4}t^3
-\end{displaymath}
-\begin{displaymath}
-\vdots
-\end{displaymath}
-\begin{displaymath}
-P_{n-3...n}(t)=P_{n-3}(1-t)^{3}+3P_{n-2}(1-t)^{2}t+3P_{n-1}(1-t)t^2+P_{n}t^3
-\end{displaymath}
-
-Note how the coefficients of the terms seems to follow their corresponding binomial coefficient. However, until a proof is given for this conjecture, we shall leave them as some coefficients \(a_0, a_1 ... a_n\). As such, continuing to repeat the algorithm would compute to be
-
-\begin{equation}
-P_{0...n}(t)=a_{0}P_0(1-t)^n+ ... + a_{k}P_0(1-t)^{n-k}t^k + ... + a_{n}P_0t^n.
-\end{equation}
-
-Eq. (8) can be rewritten as the following form:
-
-\begin{equation}
-P_{0...n}(t)=\displaystyle\sum_{i=0}^{n} a_{i}P_i(1-t)^{n-i}t^i
-\end{equation}
-
-However, this is only an explicit definition of the interpolated point from a set of points, and we still do not have a single formula that recursively defines the De Casteljau algorithm itself. However, instead of strictly following the verbally-expressed algorithm, we can simply reverse it to express the construction in terms of two consecutive subset of control points or,
-
-\begin{equation}
-P_{a...b}(t)=[P_{a...b-1}(t)](1-t)+[P_{a+1...b}(t)]t,
-\end{equation}
-
-where \(P_{\nu...\nu}(t)=P_{\nu}(t)=P_{\nu}, \nu \in \mathbb{Z}_{\geq0}\).
-
-However, it is still not yet found what the coefficients \(a_0\), \(a_1\) ... \(a_n\) are. An aforementioned remark was made upon how these coefficients seem to follow the binomial coefficients. As such, the following theorem can be made:
-\newline
-\begin{theorem} \text{\cite{PRAUTZ:2013}}
-The coefficients of the terms of curve interpolation equal to the corresponding binomial coefficients; \(a_k=\binom{n}{k}, k \in [0,n] \cup \mathbb{Z}_{\geq0} \)
-\end{theorem}
-
-\begin{proof}
-Let \(\mathbf{V}\) be an arbitrary 2D vector. As such, translating the curve by \(\mathbf{V}\) would be equivalent to adding \(\mathbf{V}\) to every control point. Then,
-
-\begin{equation}\begin{split}
-P_{0...n}(t) + \mathbf{V}	& =\displaystyle\sum_{i=0}^{n} (P_i+\mathbf{V})a_{i}(1-t)^{n-i}t^i \\ 
-					& = \displaystyle\sum_{i=0}^{n} P_ia_{i}(1-t)^{n-i}t^i + \mathbf{V}\displaystyle\sum_{i=0}^{n} a_{i}(1-t)^{n-i}t^i \\
-					& = P_{0...n}(t) + \mathbf{V}\displaystyle\sum_{i=0}^{n} a_{i}(1-t)^{n-i}t^i
-\end{split}\end{equation}
-
-In order for Eq. (11) to be true,
-
-\begin{equation}
-\displaystyle\sum_{i=0}^{n} a_{i}(1-t)^{n-i}t^i = 1.
-\end{equation}
-
-Consider the following binomial expansion, as given by \citeA{PRAUTZ:2013}:
-
-\begin{displaymath}
-1 = ((1-t) + t)^n
-\end{displaymath}
-
-By the binomial theorem, computing this binomial expansion gives,
-
-\begin{equation}
-((1-t) + t)^n = \displaystyle\sum_{i=0}^{n} \binom{n}{i}(1-t)^{n-i}t^i = 1.
-\end{equation}
-
-with \(\binom{n}{i}\) as the binomial coefficient, where
-
-\begin{displaymath}
-\binom{n}{i} = \frac{n!}{i!(n-i)!}. 
-\end{displaymath}
-
-Note how Eq. (13) is in equivalent to Eq. (12) with \(a_i=\binom{n}{i}\). Thus, if \(a_i=\binom{n}{i}\),
-
-\begin{displaymath}
-P_{0...n}(t) + \mathbf{V} = P_{0...n}(t) + \mathbf{V}\displaystyle\sum_{i=0}^{n} a_{i}(1-t)^{n-i}t^i.
-\end{displaymath}
-
-is true. Therefore,
-
-\begin{equation}
-P_{0...n}(t) = \displaystyle\sum_{i=0}^{n} \binom{n}{i}P_i(1-t)^{n-i}t^i.
-\end{equation}
-
-\qedhere
-
-\end{proof}
-
-In fact, this is the definition of the \emph{B\'{e}zier curve}, and with the thorough knowledge of linear interpolation and the De Casteljau construction, we can now investigate and evaluate its properties.
-
-%However, one may notice that, while the De Casteljau algorithm was strictly followed, it is still not clear why the derived formula gives contains a binomial coefficient.
-%
-%However, instead of strictly following the procedure of the algorithm, we can also reverse it, and start from defining the point that we want to obtain in terms of the interpolated points from the two consecutive subsets of the control points, or
-
-\section{B\'ezier Curve}
-
-In section 3, we discussed how repeated linear interpolation can be used to produce a smooth curve, which is formalized by the De Casteljau algorithm. In fact, the curve produced from this interpolation technique is called the \textbf{B\'{e}zier curve}. 
-
-\subsection{Mathematical Definitions and Properties}
-
-To reiterate the aforementioned findings, the B\'{e}zier curve can be defined as an interpolation of a curve with a given set of control points. Mathematically, the B\'{e}zier curve \(b(t)\) is defined as
-
-\begin{equation}
-b(t) = \displaystyle\sum_{i=0}^{n}\binom{n}{i}P_i(1-t)^{n-i}t^i,
-\end{equation}
-
-where \(n\) is the degree of the curve. A degree of a curve is with respect to \(t\). This simply means that, if the above definition were to be computed and simplified, it will yield a function of degree \(n\) with respect to \(t\).
-
-The polynomial expressed in the form of a sum in Eq. (13) is called the Bernstein polynomial \(B^{n}(t)\), where \(n\) is the degree of the polynomials \cite{PRAUTZ:2013}.
-
-\begin{equation}
-B^{n}(t) = \displaystyle\sum_{i=0}^{n} \binom{n}{i}(1-t)^{n-i}t^i.
-\end{equation}
-
-Each individual term of this polynomial can be represented as \(B_{i}^{n}(t)\). In other words,
-
-\begin{equation}
-B_{i}^{n}(t) = \binom{n}{i}(1-t)^{n-i}t^i.
-\end{equation}
-
-Thus, the B\'{e}zier curve \(b(t)\) can be simplified as the following:
-
-\begin{equation}
-b(t) = \displaystyle\sum_{i=0}^{n}P_i B_{i}^{n}(t),
-\end{equation}
-
-When graphically plotted on a Cartesian plane, each term of Bernstein polynomial is an \(n\)th degree polynomial with respect to \(t\), as shown in Fig. 4.1 with terms of Bernstein polynomial of degree 3. Note how at any \(t\), the terms sum up to be 1, as deduced in Eq. (13).
-
-\begin{figure}
-\begin{center}
-\includegraphics[height=8cm]{Bernstein-Polynomials.jpg}
-\end{center}
-
-\caption{Terms of Cubic Bernstein Polynomials}
-\end{figure}
-
-The B\'{e}zier control points, then, can be thought of as adjusting the \textit{weights} of these Bernstein polynomials. Such is why B\'{e}zier representation of a curve is referred to as the "weighted sum" \cite{PRAUTZ:2013} of Bernstein polynomials.
-
-\subsubsection{End Points}
-
-Fig. 4.1 illustrates how at the end point of the curve (\(t=0,1\)) the curve will always coincide with its initial and final B\'{e}zier control point, as shown in Fig. 4.2.
-
-\begin{figure}[H]
-	\centering
-	\begin{tikzpicture}[scale=3]
-		\draw [->] (0,0) -- (0,4) node[align=left, right] {\(y\)};
-		\draw [->] (0,0) -- (5,0) node[align=left, above] {\(x\)};
-		\draw (0,0) node[anchor=north east,fill=white] {0};
-		\foreach \x/\xtext in {1, 2, 3, 4} 
-			\draw (\x,1pt) -- (\x,-1pt) node[anchor=north,fill=white] {$\xtext$};
-		\foreach \y/\ytext in {1, 2, 3} 
-			\draw (1pt,\y) -- (-1pt,\y) node[anchor=east,fill=white] {$\ytext$};
-			
-		\draw (3.5,3.5) -- (4.8, 3.5) node[pos=0, left]{\(t\)} node[pos=0, above]{0} node[pos=0.4, below]{0.4} node[pos=1, above]{1};
-		\draw[ultra thick] (3.5,3.5) -- (4.02, 3.5);
-		\draw (3.5,3.5-0.05) -- (3.5,3.5+0.05);
-		\draw (4.02,3.5-0.05) -- (4.02,3.5+0.05);
-		\draw (4.8,3.5-0.05) -- (4.8,3.5+0.05);
-		
-		\filldraw (1,1) circle (1pt) node[align=center, below] {\(P_0\)};
-		\filldraw (2,3) circle (1pt) node[align=center, above] {\(P_1\)};
-		\filldraw (3,3) circle (1pt) node[align=center, above] {\(P_2\)};
-		\filldraw (4,1) circle (1pt) node[align=center, below] {\(P_3\)};
-		
-		\draw (1,1) -- (2,3) -- (3,3) -- (4,1);
-		
-		\draw[ultra thick] (1,1) .. controls (2,3) and (3,3) .. (4,1);
-		
-%		\filldraw (1.4,1.8) circle (1pt) node[align=center, above left] {\(P_{0,1}\)};
-%		\filldraw (2.4,3) circle (1pt) node[align=center, above] {\(P_{1,2}\)};
-%		\filldraw (3.4,2.2) circle (1pt) node[align=center, above right] {\(P_{2,3}\)};
-%		
-%		\draw[dashed] (1.4,1.8) -- (2.4,3) -- (3.4,2.2);
-%		
-%		\filldraw (1.8,2.28) circle (1pt) node[align=center, below right] {\(P_{0,1,2}\)};
-%		\filldraw (2.8,2.68) circle (1pt) node[align=center, below] {\(P_{2,3,4}\)};
-%		\draw[dotted] (1.8,2.28) -- (2.8,2.68);
-%		
-%		\filldraw (2.2,2.44) circle (1pt) node[align=center, below right]{\(P'\)};
-	\end{tikzpicture}
-	\caption{Illustration of the interpolated curve with 4 control points}
-\end{figure}
-
-As such, as noted by \citeA{PRAUTZ:2013}, for any B\'{e}zier curve, defined for \(t \in [0,1]\)
-
-\begin{equation}
-b(0)=P_0,
-\end{equation}
-\begin{equation}
-b(1)=P_n.
-\end{equation}
-
-\subsubsection{Symmetry}
-Note how the graph illustrated in Fig. 4.1 is symmetric for line \(t=0.5\). This symmetry can be understood as the graph being identical to its original even after a horizontal translation of \(1\) towards left, and a horizontal reflection. As such, for any Bernstein polynomial
-
-\begin{equation}
-B_{i}^{n}(t) = B_{n-i}^{n}(1-t).
-\end{equation}
-
-This symmetry, as noted by \citeA{PRAUTZ:2013}, implies that the B\'{e}zier curve
-
-\begin{equation}
-b(t) = \displaystyle\sum_{i=0}^{n}P_i B_{i}^{n}(t) = \displaystyle\sum_{i=0}^{n}P_i B_{n-i}^{n}(t) = \displaystyle\sum_{i=0}^{n}P_{n-i} B_{i}^{n}(t).
-\end{equation}
-
-\subsubsection{Recursion Formula}
-
-As noted by \citeA{PRAUTZ:2013}, the De Casteljau algorithm implies that the B\'{e}zier curve with control points \(P_a, P_a+1, ... , P_b-1, P_b\)
-
-\begin{equation}
-b(t) = \displaystyle\sum_{i=a}^{b}P_i B_{i}^{n}(t) = (1-t)\displaystyle\sum_{i=a}^{b-1}P_i B_{i}^{n-1}(t) + t\displaystyle\sum_{i=a+1}^{b}P_i B_{i}^{n-1}(t).
-\end{equation}
-
-where \(n\) is the degree of the B\'{e}zier curve, which is equal to \(b-a\).
-
-\subsection{Mathematical Advantage of B\'{e}zier Curves}
-
-%\begin{itemize}
-%\item Ease of degree reduction: De Casteljau
-%\item Ease of degree elevation (Exchange between legacy and new system)
-%\item Unaffected by Translation and Rotation
-%\end{itemize}
-%
-%\subsection{Practical Advantage of B\'{e}zier Curves}
-%\begin{itemize}
-%\item Intuitive to make tangentially continuous curves
-%\item Ease of implementation
-%\end{itemize}
 
 \newpage
 
