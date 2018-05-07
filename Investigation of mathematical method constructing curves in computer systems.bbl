@@ -1,60 +1,97 @@
 \begin{thebibliography}{}
 
 \bibitem [\protect \citeauthoryear {%
-\APACcitebtitle {Bezier curves}}{%
-\APACcitebtitle {Bezier curves}}{%
-{\protect \APACyear {2017}}%
-}]{%
-MAYA:2017}
-\APACinsertmetastar {%
-MAYA:2017}%
-\APACrefbtitle {Bezier curves.} {Bezier curves.}
-\newblock
-\APACrefYearMonthDay{2017}{December}{}.
-\newblock
-\APAChowpublished {Retrieved from https://knowledge.autodesk.com/
-  support/maya/learn-explore/caas/CloudHelp/cloudhelp/2018/ENU/Maya-Modeling/files/GUID-5A399D05-9271-4517-8370-0533DC468277-htm.html}.
-\PrintBackRefs{\CurrentBib}
-
-\bibitem [\protect \citeauthoryear {%
-\APACcitebtitle {Bezier {Pen} {Tool} - {Flash} {Professional} {CS5}}}{%
-\APACcitebtitle {Bezier {Pen} {Tool} - {Flash} {Professional} {CS5}}}{%
-{\protect \APACyear {2017}}%
-}]{%
-ADOBEF:2017}
-\APACinsertmetastar {%
-ADOBEF:2017}%
-\APACrefbtitle {Bezier {Pen} {Tool} - {Flash} {Professional} {CS5}.} {Bezier
-  {Pen} {Tool} - {Flash} {Professional} {CS5}.}
-\newblock
-\APACrefYearMonthDay{2017}{April}{}.
-\newblock
-\APAChowpublished {Retrieved from
-  https://helpx.adobe.com/flash/kb/bezier-pen-tool-flash-professional.html}.
-\PrintBackRefs{\CurrentBib}
-
-\bibitem [\protect \citeauthoryear {%
-bubba (https://math.stackexchange.com/users/31744/bubba)%
+Chun%
 }{%
-bubba (https://math.stackexchange.com/users/31744/bubba)%
+Chun%
 }{%
-{\protect \APACyear {2015}}%
+{\protect \APACyear {2012}}%
 }]{%
-BUBBA:2015}
+FLASH:2012}
 \APACinsertmetastar {%
-BUBBA:2015}%
+FLASH:2012}%
 \begin{APACrefauthors}%
-bubba (https://math.stackexchange.com/users/31744/bubba).%
+Chun, R.%
 \end{APACrefauthors}%
 \unskip\
 \newblock
-\APACrefYearMonthDay{2015}{December}{}.
+\APACrefYear{2012}.
 \newblock
-\APACrefbtitle {Bezier curve coefficients intuition.} {Bezier curve
-  coefficients intuition.}
+\APACrefbtitle {Adobe {Flash} {Professional} {CS6}: {Classroom} in a book.}
+  {Adobe {Flash} {Professional} {CS6}: {Classroom} in a book.}
 \newblock
-\APAChowpublished {Mathematics Stack Exchange. Retrieved from
-  https://math.stackexchange.com/q/1589350}.
+\APACaddressPublisher{}{Adobe Press}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+de Casteljau%
+}{%
+de Casteljau%
+}{%
+{\protect \APACyear {1959}}%
+}]{%
+DECAST:1959}
+\APACinsertmetastar {%
+DECAST:1959}%
+\begin{APACrefauthors}%
+de Casteljau, P.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{1959}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Outillages m{\'e}thodes calcul} {Outillages m{\'e}thodes
+  calcul}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Andr{\'e} Citro{\"e}n Automobiles SA, Paris}{}{}{}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Farin%
+}{%
+Farin%
+}{%
+{\protect \APACyear {2001}}%
+}]{%
+FARIN:2001}
+\APACinsertmetastar {%
+FARIN:2001}%
+\begin{APACrefauthors}%
+Farin, G.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYear{2001}.
+\newblock
+\APACrefbtitle {Curves and surfaces for {CAGD}: {A} practical guide} {Curves
+  and surfaces for {CAGD}: {A} practical guide}\ (\PrintOrdinal{5th Edition}\
+  \BEd).
+\newblock
+\APACaddressPublisher{}{Elsevier Science}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Goelker%
+}{%
+Goelker%
+}{%
+{\protect \APACyear {2007}}%
+}]{%
+GOELKER:2007}
+\APACinsertmetastar {%
+GOELKER:2007}%
+\begin{APACrefauthors}%
+Goelker, K.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYear{2007}.
+\newblock
+\APACrefbtitle {Gimp 2 for Photographers: {Image} Editing with Open Source
+  Software} {Gimp 2 for photographers: {Image} editing with open source
+  software}.
+\newblock
+\APACaddressPublisher{}{Rocky Nook}.
 \PrintBackRefs{\CurrentBib}
 
 \bibitem [\protect \citeauthoryear {%
@@ -82,6 +119,31 @@ Prautzsch, H.%
   {B}-spline techniques}.
 \newblock
 \APACaddressPublisher{}{Springer Science \& Business Media}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Ulrich-Fuller%
+\ \BBA {} Fuller%
+}{%
+Ulrich-Fuller%
+\ \BBA {} Fuller%
+}{%
+{\protect \APACyear {2007}}%
+}]{%
+FULLER:2017}
+\APACinsertmetastar {%
+FULLER:2017}%
+\begin{APACrefauthors}%
+Ulrich-Fuller, L.%
+\BCBT {}\ \BBA {} Fuller, R.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYear{2007}.
+\newblock
+\APACrefbtitle {Photoshop {CS3} {Bible}} {Photoshop {CS3} {Bible}}.
+\newblock
+\APACaddressPublisher{}{John Wiley \& Sons}.
 \PrintBackRefs{\CurrentBib}
 
 \end{thebibliography}
