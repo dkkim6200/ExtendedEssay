@@ -47,6 +47,39 @@ de Casteljau, P.%
 \PrintBackRefs{\CurrentBib}
 
 \bibitem [\protect \citeauthoryear {%
+Dokken%
+, Daehlen%
+, Lyche%
+\BCBL {}\ \BBA {} Morken%
+}{%
+Dokken%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {1990}}%
+}]{%
+DOKKEN:1990}
+\APACinsertmetastar {%
+DOKKEN:1990}%
+\begin{APACrefauthors}%
+Dokken, T.%
+, Daehlen, M.%
+, Lyche, T.%
+\BCBL {}\ \BBA {} Morken, K.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{1990}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Good approximation of circles by curvature-continuous
+  {B}\'ezier curves} {Good approximation of circles by curvature-continuous
+  {B}\'ezier curves}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Computer Aided Geometric Design}{7}{1}{33 - 41}.
+\newblock
+\begin{APACrefDOI} \doi{https://doi.org/10.1016/0167-8396(90)90019-N}
+  \end{APACrefDOI}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
 Farin%
 }{%
 Farin%
@@ -130,9 +163,9 @@ Ulrich-Fuller%
 }{%
 {\protect \APACyear {2007}}%
 }]{%
-FULLER:2017}
+FULLER:2007}
 \APACinsertmetastar {%
-FULLER:2017}%
+FULLER:2007}%
 \begin{APACrefauthors}%
 Ulrich-Fuller, L.%
 \BCBT {}\ \BBA {} Fuller, R.%
