@@ -24,6 +24,12 @@
 \usepackage{chngcntr}
 \usepackage{booktabs}
 
+\usepackage{titlesec}
+\titlelabel{\thetitle.\quad}
+
+%\usepackage{indentfirst}
+%\setlength{\parindent}{1.27cm}
+
 \DeclareMathOperator*{\argmax}{arg\,max}
 \DeclareMathOperator*{\argmin}{arg\,min}
 
@@ -72,14 +78,14 @@
 \def\bezier(#1,#2, #3, #4, #5){#2*((1-#1)^3) + 3*#3*((1-#1)^2)*#1 + 3*#4*(1-#1)*(#1^2) + #5*(#1^3)}%
 
 
-\title{How can the B\'ezier curve be used to approximate a cycloid?}
+\title{To what extent can the B\'ezier curve be used to approximate a cycloid?}
 \author{Daekun Kim}
 %\date{}							% Activate to display a given date or no date
 
 \begin{document}
 \begin{titlingpage}
 \maketitle
-Word count: 5161
+Word count: 4075
 \end{titlingpage}
 \tableofcontents
 \newpage
@@ -90,229 +96,52 @@ Word count: 5161
 %==========================================================================================
 %==========================================================================================
 \section{Introduction}
-	In the modern era, the computers are one of the most influential tools in humanity's lives. In fact, generations born after the 2000s, including myself, hardly lived an era with absence of heavy influence of computers. Many of its powerful abilities, such as being able to render high quality realistic images, is taken for granted by many people. It is capable of displaying millions of polygons and curved shapes in few milliseconds, which is crucial for many industrial applications, 3D video games, and for designers. However, computers, by nature, can only process discrete information, and it seems as if it must be only capable  of rendering straight and rigid shapes; it is not clear how it is possible for them to portray such smooth curved surfaces and shapes in such a swift manner.
+	In the modern era, the computers are one of the most influential tools in humanity's lives. In fact, generations born after the 2000s, including myself, hardly lived an era with absence of heavy influence of computers. Many of its powerful abilities, such as being able to render high quality realistic images, is taken for granted by many people. It is capable of displaying millions of polygons and curved shapes in few milliseconds, which is crucial for many industrial applications, 3D video games, and for designers. Such capability of computers truly amazes me. 
 
-This rendering of curves and curved surfaces can be achieved using many methods, but one of the most prominent method is the B\'ezier curve. It is utilized in many of the famous 3D design and animation softwares, such as Adobe Flash \fullcite{FLASH:2012}, GIMP \fullcite{GOELKER:2007}, and Adobe Photoshop \fullcite{FULLER:2007}. Along with being one of the most popular methods to render curves in computer systems, the B\'ezier curves are also relatively intuitive and concise that it can be more easily understood than other more complicated methods, which will be explained throughout this essay.
-
-This essay aims to \textbf{investigate the mathematical development of the B\'ezier curve, a method used to construct curves in computer systems}. I intend to connect the idea of rudimentary linear function to linear interpolation, and its parametric definition. Then, a natural realization of the De Casteljau algorithm, a recursive process used to construct the B\'ezier curve, from a repeated linear interpolation of attempting to draw a curve will be explained. Finally, the definition and the properties of B\'ezier curve itself will be discussed, with thorough examples of its real-world applications. Ultimately, the objective is to examine the development of the B\'ezier curve using the mathematical concepts taught in IB Mathematics HL.
-
-%==========================================================================================
-%==========================================================================================
-%=================================== LINEAR INTERPOLATION =================================
-%==========================================================================================
-%==========================================================================================
-
-\section{Linear Interpolation}
-
-Straight lines are one of the easiest shapes one can imagine and draw, because of their simplicity to understand and manipulate. Such holds true even for computers. Graphically, drawing straight lines is the most rudimentary job a computer can perform. However, because it is so easy to render, it forms the fundamentals of how computers can render sophisticated curves and surfaces onto a screen.
-
-Lines can be thought of as the shortest path that connects two points. A \textbf{linear interpolation}, then, is calculating which position on the line one would arrive on if one was to travel certain distance or time. Mathematically, given two points, $(x_A, y_A)$ and $(x_B,y_B)$ with $x_A < x_B$, a linear interpolation is construction of a new set of $y$ from $x$ values within $[x_A, x_B]$. The formula of linear interpolation can be given as a relationship of the slopes of the lines connecting the starting and end point with that of line connecting the interpolated point with the starting point, or
-
-\begin{equation}
-\frac{y-y_A}{x-x_A}=\frac{y_B-y_A}{x_B-x_A}
-\end{equation}
-
-Eq. (1) is stating that, if a person was to travel over a line, the ratio of the distances at which one travelled vertically over the horizontal distance travelled must be the same no matter the position he or she lies on the line.
-
-\begin{example}
-
-\begin{figure}[H]
-	\centering
-	\begin{tikzpicture}[scale=1]
-		\draw [->] (0,0) -- (0,3) node[align=left, right] {$y$};
-		\draw [->] (0,0) -- (4,0) node[align=left, above] {$x$};
-		\draw (0,0) node[anchor=north east,fill=white] {0};
-		\foreach \x/\xtext in {1, 2, 3} 
-			\draw (\x,1pt) -- (\x,-1pt) node[anchor=north,fill=white] {$\xtext$};
-		\foreach \y/\ytext in {1, 2} 
-			\draw (1pt,\y) -- (-1pt,\y) node[anchor=east,fill=white] {$\ytext$};
-		
-		\path	(1,1) node(p0) {} 
-			(3,2) node(p1) {};
-		\draw (p0) -- (p1);
-		\filldraw (p0) circle (1pt) node[align=center, below] {$(1,1)$};
-		\filldraw (p1) circle (1pt) node[align=center, above] {$(3,2)$};
-	\end{tikzpicture}
-	\caption{Linear interpolation between two points}
-\end{figure}
-
-Fig. 2.1 shows an example of linear interpolation between $(1,1)$ and $(3,2)$.
-
-The equation of linear interpolation in Fig. 2.1 can be defined as following:
-
-\begin{equation}
-\frac{y-1}{x-1}=\frac{2-1}{3-1},1 \leq x \leq 2
-\end{equation}
-
-The line shown in Fig 2.1 is called the \textbf{interpolant}, which can be thought of, literally, as a shortest path between two points. Solving Eq. (2) for $x$ gives us the following:
-
-\begin{equation}
-\begin{split}
-y	& = \frac{1}{2}(x-1)+1, \\ 
-	& = \frac{1}{2}x+\frac{1}{2}
-\end{split}
-\end{equation}
-
-In fact, this is now in slope-intercept form of an equation of a linear function, $y=mx+b$! This signifies that linear interpolation is nothing more than a linear function with a restricted domain between two points.
-
-\end{example}
-
-
-\section{Parametric Equations}
-The previous section showed that linear interpolation is essentially plotting a point on a line using a linear function. However, such is not possible with our original definition of linear interpolation when the line cannot be defined using a function. For instance, consider a straight vertical line as shown in Fig 3.1.
-
-\begin{figure}[h]
-	\centering
-	\begin{tikzpicture}[scale=1]
-		\draw [->] (0,0) -- (0,4) node[align=left, right] {$y$};
-		\draw [->] (0,0) -- (4,0) node[align=left, above] {$x$};
-		\draw (0,0) node[anchor=north east,fill=white] {0};
-		\foreach \x/\xtext in {1, 2, 3} 
-			\draw (\x,1pt) -- (\x,-1pt) node[anchor=north,fill=white] {$\xtext$};
-		\foreach \y/\ytext in {1, 2, 3} 
-			\draw (1pt,\y) -- (-1pt,\y) node[anchor=east,fill=white] {$\ytext$};
-		
-		\path	(2,1) node(p0) {} 
-			(2,3) node(p1) {};
-		\draw (p0) -- (p1);
-		\filldraw (p0) circle (1pt) node[align=center, below] {$(1,1)$};
-		\filldraw (p1) circle (1pt) node[align=center, above] {$(3,2)$};
-	\end{tikzpicture}
-	\caption{A vertical linear interpolation}
-\end{figure}
-
-In order for a line to be defined by a function, it must pass the Vertical Line Test, which states that there can only be one and only one $y$ value for each $x$ value. The line shown in Fig 3.1 obviously does not pass this condition, since there are infinitely many $y$ values for $x=2$.
-
-However, by redefining linear interpolation with a set of parametric equations, one can easily overcome this apparent problem. Instead of defining an interpolation with respect to $x$, we can do so with another variable $t$ within $[0,1]$, and define different equations for the values of $y$ and $x$ with no explicitly direct relationship between them. This new variable $t$ can be thought of as the time, or the ratio of how much of the path one have travelled from the initial point to the total distance.
-
-\begin{example}
-
-\begin{figure}[h]
-	\centering
-	\begin{tikzpicture}[scale=1.5]
-		\draw [->] (0,0) -- (0,3) node[align=left, right] {$y$};
-		\draw [->] (0,0) -- (4,0) node[align=left, above] {$x$};
-		\draw (0,0) node[anchor=north east,fill=white] {0};
-		\foreach \x/\xtext in {1, 2, 3} 
-			\draw (\x,1pt) -- (\x,-1pt) node[anchor=north,fill=white] {$\xtext$};
-		\foreach \y/\ytext in {1, 2} 
-			\draw (1pt,\y) -- (-1pt,\y) node[anchor=east,fill=white] {$\ytext$};
-		
-		\path	(1,1) node(p0) {} 
-			(3,2) node(p1) {};
-		\filldraw (p0) circle (1pt) node[align=center, below] {$P_A(1,1)$};
-		\filldraw (p1) circle (1pt) node[align=center, above] {$P_B(3,2)$};
-		\draw (p0) -- (p1);
-		\draw (1,1) -- (3,1);
-		\draw (1,1) -- (1,2);
-		\draw[dashed] (2,1) -- (2,1.5);
-		\draw[dashed] (1,1.5) -- (2,1.5);
-		\filldraw (2,1.5) circle (1pt) node[align=center, below right] {$P'(2,\frac{3}{2})$};
-%		\draw (2,1+0.05) -- (2,1-0.05) node[anchor=north,fill=white] {t=0.5};
-		\draw (1.46,1+0.05) -- (1.5,1-0.05);
-		\draw (1.5,1+0.05) -- (1.54,1-0.05);
-		\draw (2.46,1+0.05) -- (2.5,1-0.05);
-		\draw (2.5,1+0.05) -- (2.54,1-0.05);
-		\draw (1+0.05,1.23) -- (1-0.05,1.27);
-		\draw (1+0.05,1.73) -- (1-0.05,1.77);
-	\end{tikzpicture}
-	\caption{Parametric linear interpolation for $t=0.5$}
-\end{figure}
-
-Fig. 3.2 shows a linear interpolation at $t=0.5$. At $t=0.5$, the resulting point at halfway between $P_A$ and $P_B$ in both directions of the $x$- and $y$-axes. This can be thought of as a driver having travelled 50\% of the path.
-\end{example}
-
-\begin{example}
-
-\begin{figure}[H]
-	\centering
-	\begin{tikzpicture}[scale=1.5]
-		\draw [->] (0,0) -- (0,3) node[align=left, right] {$y$};
-		\draw [->] (0,0) -- (4,0) node[align=left, above] {$x$};
-		\draw (0,0) node[anchor=north east,fill=white] {0};
-		\foreach \x/\xtext in {1, 2, 3} 
-			\draw (\x,1pt) -- (\x,-1pt) node[anchor=north,fill=white] {$\xtext$};
-		\foreach \y/\ytext in {1, 2} 
-			\draw (1pt,\y) -- (-1pt,\y) node[anchor=east,fill=white] {$\ytext$};
-		
-		\path	(1,1) node(p0) {} 
-			(3,2) node(p1) {};
-		\filldraw (p0) circle (1pt) node[align=center, below left] {\scriptsize $P_0(1,1)$};
-		\filldraw (p1) circle (1pt) node[align=center, above] {\scriptsize $P_1(3,2)$};
-		\draw (p0) -- (p1);
-		\draw (1,1) -- (3,1);
-		\draw (1,1) -- (1,2);
-		\draw[dashed] (1.5,1) -- (1.5,1.25);
-		\draw[dashed] (1,1.25) -- (1.5,1.25);
-		\filldraw (1.5,1.25) circle (1pt) node[align=center, right] {\scriptsize $P'(1.5,1.25)$};
-		\draw [decorate,decoration={brace,amplitude=10pt,mirror},xshift=0pt,yshift=0pt] (1,1) -- (1.5,1) node [black,midway,yshift=-20pt] {\footnotesize $0.25$};
-		\draw [decorate,decoration={brace,amplitude=10pt,mirror},xshift=0pt,yshift=0pt] (1.5,1) -- (3,1) node [black,midway,yshift=-20pt] {\footnotesize $0.75$};
-		
-		\draw [decorate,decoration={brace,amplitude=10pt},xshift=0pt,yshift=0pt] (1,1) -- (1,1.25) node [black,midway,xshift=-20pt] {\footnotesize $0.25$};
-		\draw [decorate,decoration={brace,amplitude=10pt},xshift=0pt,yshift=0pt] (1,1.25) -- (1,2) node [black,midway,xshift=-20pt] {\footnotesize $0.75$};
-	\end{tikzpicture}
-	\caption{Parametric linear interpolation for $t=0.25$}
-\end{figure}
-
-In the same way, as shown in Fig. 3.3, at $t=0.25$, the resulting points are one-quarter of the way between the initial and the terminal points in both axes, which is like travelling 25\% of the path since the starting point.
-\end{example}
-
-As shown in the two examples above, the $t$ value is analogous to the ratio in which the person has travelled from the initial point that a GPS device would let one know.
-
-As such, a linear interpolation between $(x_A, y_B)$ and $(x_A,y_B)$ can be parametrically defined as following:
-\begin{gather}
-x(t)=x_A + (x_B - x_A)t \\
-y(t)=y_A + (y_B - y_A)t
-\end{gather}
-
-At $t=0$, the interpolated point is at $(x_A, y_A)$, the initial point, and at $t=0$, it is at $(x_1,y_1)$, the terminal point. This can be considered as being at the initial point when one has travelled 0\% of the path, and as being at the terminal point when one has travelled 100\% of the path.
-
-Parametric equations (4) and (5), however, look to be very similar. In fact, they can be combined to form a 2-dimensional (2D) vector equation. Let $P_0$ and $P_1$ be position vectors, where $P_0=(x_0,y_0)$ and $P_1=(x_1,y_1)$. Then,
-
-\begin{equation}
-P(t)=P_0 + (P_1 - P_0)t,
-\end{equation}
-
-where $P(t)$ is a function that linearly interpolates a point between $P_0$ and $P_1$ for $t \in [0,1]$. Analogously, this is a vector addition between the initial location and the path a driver has travelled so far at time $t$. Eq. (6) can be rearranged as following:
-
-\begin{equation}
-P(t)={P_0}(1-t) + {P_1}t,
-\end{equation}
-
-Eq. (7) further emphasizes the analogous nature of $t$ being the ``ratio'' \fullcite{PRAUTZ:2013} of the resulting point $P$ with respect to the initial and final points. More specifically, the ratio $t:(1-t)$ equals to the ratio of the distance from the current point $P$ with the initial point $P_0$ and the final point $P_1$, respectively, as shown in Fig. 3.4.
-
-\begin{figure}[H]
-	\centering
-	\begin{tikzpicture}[scale=1.5]
-		\draw [->] (0,0) -- (0,3) node[align=left, right] {$y$};
-		\draw [->] (0,0) -- (4,0) node[align=left, above] {$x$};
-		\draw (0,0) node[anchor=north east,fill=white] {0};
-		\foreach \x/\xtext in {1, 2, 3} 
-			\draw (\x,1pt) -- (\x,-1pt) node[anchor=north,fill=white] {$\xtext$};
-		\foreach \y/\ytext in {1, 2} 
-			\draw (1pt,\y) -- (-1pt,\y) node[anchor=east,fill=white] {$\ytext$};
-		
-		\path	(1,1) node(p0) {} 
-			(3,2) node(p1) {};
-		\filldraw (p0) circle (1pt) node[align=center, below left] {$P_0(1,1)$};
-		\filldraw (p1) circle (1pt) node[align=center, above right] {$P_1(3,2)$};
-		\draw (p0) -- (p1);
-		\draw[ultra thick] (p0) -- (1.5,1.25);
-		\filldraw (1.5,1.25) circle (1pt) node[align=center, below right] {$P'(1.5,1.25)$};
-		
-		\draw [decorate,decoration={brace,amplitude=10pt},xshift=0pt,yshift=0pt] (1,1) -- (1.5,1.25) node [black,midway,yshift=20pt,xshift=-10pt] {\footnotesize $0.25$};
-		\draw [decorate,decoration={brace,amplitude=10pt},xshift=0pt,yshift=0pt] (1.5,1.25) -- (3,2) node [black,midway,yshift=20pt,xshift=-10pt] {\footnotesize $0.75$};
-	\end{tikzpicture}
-	\caption{Ratio of $(1-t)$ and $t$ for $t=0.25$}
-\end{figure}
-
-To construct the interpolant, $t$ values with an infinitesimal interval between each other would be used. In computer systems, this would translate to having $t$ values with an interval small enough that will allow the line to appear smooth and continuous, and large enough to not harm the performance of the computer.
+This swift rendering of curves and curved surfaces is achieved using many methods, but one of the most prominent method is the B\'ezier curve. It is utilized in many of the famous 3D design and animation softwares, such as Adobe Flash \fullcite{FLASH:2012}, GIMP \fullcite{GOELKER:2007}, and Adobe Photoshop \fullcite{FULLER:2007}. However, because the B\'ezier curve is a parametric polynomial curve, it cannot give an exact, mathematically equivalent representation of non-polynomial curves, such as circles, ellipses, and graphs of sine and cosine functions. As such, the topic of approximating various kinds of non-polynomial curves using the B\'ezier curve has been thoroughly investigated along with the development of computer graphics. One example of this is the unit circle approximation given by \citeA{DOKKEN:1990}, which approximates a unit circle with a maximum error in radius of $1.4*10^{-4}$ with only 4 piecewise B\'ezier curves. However, after a thorough research, it was evident that there is no formal attempt of approximation done for cycloids using a B\'ezier curve. This was quite unexpected finding, because cycloids themselves are defined parametrically like B\'ezier curves, and it is also relatively simple to understand and manipulate. As such, I have determined to \textbf{investigate on how, and to what extent, a B\'ezier curve can be used to approximate a cycloid}.
 
 \section{Recursive Linear Interpolation}
 
-Thus far, the main focus of our investigation was on the methods used to produce straight lines. However, surprisingly, linear interpolation can be repeated to produce a smooth curve. The following example will show how such can be achieved with 3 points.
+Linear interpolation is a calculation of a point on a straight path between two points $P_A, P_B$ given a value $t \in [0,1]$. If $P_A, P_B$ were to be the starting point and the destination of a driver, the ratio between the distance in which a driver has driven, and the distance he/she will be driving would be $t:(1-t)$. This straight path between $P_A, P_B$ is called the interpolant. This is shown in Fig. 2.1.
 
-\begin{example} Let $P_0 = (1,1)$, $P_1 = (2,2)$, and $P_2 = (3,1)$. By applying linear interpolation, we know that we can produce straight lines between these three points using the vector equation $P(t) = P_A(1-t) + P_{B}t$. This is shown in Fig. 4.1.
+\begin{figure}[H]
+	\centering
+	\begin{tikzpicture}[scale=1.5]
+%		\draw [->] (0,0) -- (0,3) node[align=left, right] {$y$};
+%		\draw [->] (0,0) -- (4,0) node[align=left, above] {$x$};
+%		\draw (0,0) node[anchor=north east,fill=white] {0};
+%		\foreach \x/\xtext in {1, 2, 3} 
+%			\draw (\x,1pt) -- (\x,-1pt) node[anchor=north,fill=white] {$\xtext$};
+%		\foreach \y/\ytext in {1, 2} 
+%			\draw (1pt,\y) -- (-1pt,\y) node[anchor=east,fill=white] {$\ytext$};
+		
+		\path	(1,1) node(p0) {} 
+			(3,2) node(p1) {};
+		\filldraw (p0) circle (1pt) node[align=center, below left] {$P_A$};
+		\filldraw (p1) circle (1pt) node[align=center, above right] {$P_B$};
+		\draw (p0) -- (p1);
+		\draw[ultra thick] (p0) -- (1.5,1.25);
+		\filldraw (1.5,1.25) circle (1pt) node[align=center, below right] {$P(0.25)$};
+		
+		\draw [decorate,decoration={brace,amplitude=10pt},xshift=0pt,yshift=0pt] (1,1) -- (1.5,1.25) node [black,midway,yshift=20pt,xshift=-10pt] {\footnotesize $t$};
+		\draw [decorate,decoration={brace,amplitude=10pt},xshift=0pt,yshift=0pt] (1.5,1.25) -- (3,2) node [black,midway,yshift=20pt,xshift=-10pt] {\footnotesize $1-t$};
+	\end{tikzpicture}
+	\caption{Comparison of $t$ and $1-t$ for $t=0.25$}
+\end{figure}
+
+Mathematically, the position of a person can be expressed as the following vector equation:
+
+\begin{equation}
+P(t) = P_A + (P_B-P_A)t.
+\end{equation}
+
+Rearranging the equation as following emphasizes the comparison between $t$ and $(1-t)$.
+
+\begin{equation}
+P(t) = P_A(1-t) + P_Bt.
+\end{equation}
+
+This linear interpolation can be performed with 3 points. If we have three points $P_0 = (1,1)$, $P_1 = (2,2)$, and $P_2 = (3,1)$, we can produce straight lines between these three points using the equation of linear interpolation $P(t) = P_A(1-t) + P_{B}t$ as Fig. 2.2 shown below.
 
 \begin{figure}[H]
 	\centering
@@ -331,10 +160,10 @@ Thus far, the main focus of our investigation was on the methods used to produce
 		
 		\draw (1,1) -- (2,2) -- (3,1);
 	\end{tikzpicture}
-	\caption{Linear interpolants between $P_0$ and $P_1$, and $P_1$ and $P_2$}
+	\caption{Linear interpolants between $P_0, P_1$, and $P_1, P_2$}
 \end{figure}
 
-Let $P_{0 \dotsc 1}$ be a linearly interpolated point between $P_0$ and $P_1$ at $t=0.5$. Similarly, let $P_{1 \dotsc 2}$ be the linearly interpolated point between $P_1$ and $P_2$ at $t=0.5$. These newly interpolated points can be used as the starting and terminal points of new linear interpolation, as shown in Fig. 4.2.
+The interpolated point between $P_0, P_1$ is notated $P_{0...1}$, which is $(1.5, 1.5)$ at $t=0.5$. Similarly, $P_{1 \dotsc 2}$ is $(2.5, 1.5)$ at $t=0.5$. These newly interpolated points can be used as the starting and the terminal points of new linear interpolation, as shown in Fig. 2.3.
 
 \begin{figure}[H]
 	\centering
@@ -359,10 +188,10 @@ Let $P_{0 \dotsc 1}$ be a linearly interpolated point between $P_0$ and $P_1$ at
 		\draw[dashed] (1.5,1.5) -- (2.5,1.5);
 %	\end{scriptsize}
 	\end{tikzpicture}
-	\caption{Linear interpolant of $P_{0 \dotsc 1}$ and $P_{1 \dotsc 2}$}
+	\caption{Linear interpolant between $P_{0 \dotsc 1}, P_{1 \dotsc 2}$}
 \end{figure}
 
-Finally, let $P_{0 \dotsc 2}$ be the linearly interpolated point between $P_{0 \dotsc 1}$ and $P_{1 \dotsc 2}$. $P_{0 \dotsc 2}$, then, is a resulting point of the quadratic interpolation from points $P_0$, $P_1$, and $P_2$ at $t=0.5$, as shown in Fig. 4.3.
+Finally, let $P_{0 \dotsc 2}$ be the linearly interpolated point between $P_{0 \dotsc 1}, P_{1 \dotsc 2}$ at $t=0.5$. $P_{0 \dotsc 2}$, then, is a resulting point of the quadratic interpolation from points $P_0, P_1, P_2$ at $t=0.5$, as shown in Fig. 2.4.
 
 \begin{figure}[H]
 	\centering
@@ -392,7 +221,7 @@ Finally, let $P_{0 \dotsc 2}$ be the linearly interpolated point between $P_{0 \
 	\caption{Quadratic interpolation at $t=0.5$}
 \end{figure}
 
-This technique of repeated linear interpolation can be performed at $t=0.25$ and $t=0.75$, as shown in Fig. 4.4 and 4.5.
+If we apply the above linear interpolation repeatedly with $t=0.25$ and $t=0.75$, then we will have points shown in Fig. 2.5 and 2.6.
 
 \begin{figure}[H]
 	\centering
@@ -457,62 +286,14 @@ This technique of repeated linear interpolation can be performed at $t=0.25$ and
 	    		\filldraw (2.75,1.25) circle (1pt) node[align=center, xshift=35pt, above] {$P_{1 \dotsc 2}(2.75,1.25)$};
 	    		\draw[dashed] (1.75,1.75) -- (2.75,1.25);
 	    		
-	    		\filldraw (2,1.625) circle (1pt) node[align=center, below] {\scriptsize $P_{0 \dotsc 2}(2,1.625)$};
+	    		\filldraw (2.5,1.375) circle (1pt) node[align=center, below left] {\scriptsize $P_{0 \dotsc 2}(2.5,1.375)$};
 	    	\end{footnotesize}
 	    	\end{tikzpicture}
 	    	\captionof{figure}{\small Quadratic interpolation at $t=0.75$}
 	\end{minipage}
 \end{figure}
 
-\end{example}
-
-At $t=0$ and $t=1$, the quadratic interpolation always yields points identical to the first and last of the original point, respectively.
-
-\begin{example} The points $P_0$, $P_1$ and $P_2$ are defined as that of example 4.1. At $t=0$, the two linearly interpolated points are
-
-\begin{equation_nogap}\begin{aligned}
-P_{0 \dotsc 1}(0)	& = P_0(1-0) + P_1(0) \\
-			& = P_0.\\
-P_{1 \dotsc 2}(0)	& = P_1(1-0) + P_2(0) \\
-			& = P_1. \\
-			\\
-\end{aligned}\end{equation_nogap}
-
-Then, the resulting point from the quadratic interpolation is
-
-\begin{equation_nogap}\begin{aligned}
-P_{0 \dotsc 2}(0)	& = P_{0 \dotsc 1}(1-0) + P_{1 \dotsc 2}(0) \\
-			& = P_{0 \dotsc 1} \\
-			& = P_0, \\
-			\\
-\end{aligned}\end{equation_nogap}
-
-which is the first of the original points, $P_0$.
-\end{example}
-
-\begin{example} Given the same three points as Examples 4.1 and 4.2, at $t=1$, the two linearly interpolated points are
-
-\begin{equation_nogap}\begin{aligned}
-P_{0 \dotsc 1}(1)	& = P_0(1-1) + P_1(1) \\
-			& = P_1.\\
-P_{1 \dotsc 2}(1)	& = P_1(1-1) + P_2(1) \\
-			& = P_2. \\
-			\\
-\end{aligned}\end{equation_nogap}
-
-Then, the resulting point from the quadratic interpolation is
-
-\begin{equation_nogap}\begin{aligned}
-P_{0 \dotsc 2}(1)	& = P_{0 \dotsc 1}(1-1) + P_{1 \dotsc 2}(1) \\
-			& = P_{1 \dotsc 2} \\
-			& = P_2, \\
-\\
-\end{aligned}\end{equation_nogap}
-
-which is the last of the original points, $P_2$.
-\end{example}
-
-With infinitesimal interval of $t$ values, the quadratic interpolant can be consturcted, as shown in Fig. 4.6. In computer systems, this would translate to having small enough interval of $t$ value that will allow the curve to look smooth, and also one that is large enough that will not harm the computer's performance with redundant calculations.
+Using a computer with small enough interval of $t$, the quadratic interpolant can be constructed and rendered smoothly, as shown in Fig. 2.7.
 
 \begin{figure}[H]
 	\centering
@@ -540,13 +321,11 @@ With infinitesimal interval of $t$ values, the quadratic interpolant can be cons
 	\caption{Quadratic interpolant}
 \end{figure}
 
-This repeated linear interpolation is called the \textbf{De Casteljau construction}, or the \textbf{De Casteljau algorithm} \cite{DECAST:1959}. Because this algorithm repeats itself by producing new interpolation from previously interpolated points, it is described as being "recursive" \cite{PRAUTZ:2013}, meaning that it repeats itself to meet the objective. The curve produced from this construction is later formalized and popularized by Pierre B\'ezier \fullcite{FARIN:2001}, by whom this curve, the \textbf{B\'ezier curve}, was named after.
+This process of repeated linear interpolation is called the De Casteljau algorithm \cite{DECAST:1959}. Because this algorithm repeats itself by producing new interpolation from previously interpolated points, it is described as being "recursive" \cite{PRAUTZ:2013}, meaning that it repeats itself to meet the objective. The curve produced from this construction is later formalized and popularized by Pierre B\'ezier \fullcite{FARIN:2001}, by whom this curve, the B\'ezier curve, was named after.
 
-In the De Casteljau algorithm, the only information needed to construct any curve is the initial points, such as $P_0, P_1$ and $P_2$ shown in Fig. 4.6. As such, they are the ones that controls the appearance of the resulting curve. Hence, these points are referred to as the \textbf{control points} of the B\'ezier curve \cite{PRAUTZ:2013}.
+In the De Casteljau algorithm, the only information needed to construct any curve is the initial points, such as $P_0, P_1, P_2$ of the previous example. As such, they are the ones that control the appearance of the resulting curve. Hence, these points are referred to as the control points of the B\'ezier curve \cite{PRAUTZ:2013}.
 
-Thus far, we have investigated on construction of quadratic curves with three B\'ezier control points. However, by following the similar process of repeating linear interpolation, curves with higher number of control points can be easily constructed, as shown in the following example.
-
-\begin{example} Let $P_0 = (1, 1), P_1 = (1, 5), P_2 = (5, 5),$ and $P_3 = (5, 1)$. With linear interpolation performed for each consecutive pairs of control points, a set of straight interpolants can be produced as shown in Fig. 4.7.
+Thus far, we have investigated on construction of quadratic B\'ezier curves with three control points. However, by following the similar process of repeating linear interpolation, curves with higher number of control points can be easily constructed. For example, let the control points be $P_0 = (1, 1), P_1 = (1, 5), P_2 = (5, 5), P_3 = (5, 1)$. A set of linear interpolants is produced as shown in Fig. 2.8.
 
 \begin{figure}[H]
 	\centering
@@ -574,7 +353,7 @@ Thus far, we have investigated on construction of quadratic curves with three B\
 	\caption{Linear interpolants between the four B\'ezier control points}
 \end{figure}
 
-In order to produce an interpolated point using the control points, the points $P_{0 \dotsc 1}, P_{1 \dotsc 2}$ and $P_{2 \dotsc 3}$ must be interpolated first. These points can be used to perform another set of linear interpolations, as shown in Fig. 4.8.
+Firstly, the points $P_{0 \dotsc 1}, P_{1 \dotsc 2}, P_{2 \dotsc 3}$ are interpolated. These points are used to produce another set of linear interpolants, as shown in Fig. 2.9.
 
 \begin{figure}[H]
 	\centering
@@ -619,10 +398,10 @@ In order to produce an interpolated point using the control points, the points $
 		\filldraw (P_1-2) circle (2pt) node[align=center, above] {$P_{1 \dotsc 2}(3,5)$};
 		\filldraw (P_2-3) circle (2pt) node[align=center, below right] {$P_{2 \dotsc 3}(5,3)$};
 	\end{tikzpicture}
-	\caption{Second recursion of De Casteljau algorithm}
+	\caption{Second recursion of De Casteljau algorithm at $t=0.5$}
 \end{figure}
 
-Then, the points $P_{0 \dotsc 1}, P_{1 \dotsc 2}$ and $P_{2 \dotsc 3}$ can be used to perform another linear interpolation, as shown in Fig. 4.9.
+Then, the points $P_{0 \dotsc 1}, P_{1 \dotsc 2}, P_{2 \dotsc 3}$ are used to produce points $P_{0...2}, P_{1...3}$, as shown in Fig. 2.10.
 
 \begin{figure}[H]
 	\centering
@@ -660,6 +439,12 @@ Then, the points $P_{0 \dotsc 1}, P_{1 \dotsc 2}$ and $P_{2 \dotsc 3}$ can be us
 		% Second Interpolation
 		\draw[dashed] (P_0-1) -- (P_1-2) -- (P_2-3);
 		
+		% Draw t line
+		\draw (7,6) -- (9, 6) node[pos=0, left]{$t$} node[pos=0, above]{0} node[pos=0.5, below]{0.5} node[pos=1, above]{1};
+		\foreach \t/\ttext in {7, 8, 9}
+			\draw (\t, 6+0.08) -- (\t, 6-0.08);
+		\draw[ultra thick] (7, 6) -- (8, 6);
+		
 		\filldraw (P_0-1) circle (2pt) node[align=center, below right] {$P_{0 \dotsc 1}(1,3)$};
 		\filldraw (P_1-2) circle (2pt) node[align=center, above] {$P_{1 \dotsc 2}(3,5)$};
 		\filldraw (P_2-3) circle (2pt) node[align=center, below right] {$P_{2 \dotsc 3}(5,3)$};
@@ -670,10 +455,10 @@ Then, the points $P_{0 \dotsc 1}, P_{1 \dotsc 2}$ and $P_{2 \dotsc 3}$ can be us
 		\filldraw (P_0-2) circle (2pt) node[align=center, below right] {$P_{0 \dotsc 2}(2,4)$};
 		\filldraw (P_1-3) circle (2pt) node[align=center, above right] {$P_{1 \dotsc 3}(4,4)$};
 	\end{tikzpicture}
-	\caption{Third recursion of De Casteljau algorithm}
+	\caption{Third recursion of De Casteljau algorithm at $t=0.5$}
 \end{figure}
 
-Finally, the resulting point, $P_{0 \dotsc 3}$, of the cubic interpolation at $t=0.5$ is obtained using the points $P_{0 \dotsc 2}$ and $P_{1 \dotsc 3}$, as shown in Fig. 4.10:
+Finally, the resulting point, $P_{0 \dotsc 3}$, of the cubic interpolation at $t=0.5$ is obtained from points $P_{0 \dotsc 2}, P_{1 \dotsc 3}$, as shown in Fig. 2.11:
 
 \begin{figure}[H]
 	\centering
@@ -713,6 +498,13 @@ Finally, the resulting point, $P_{0 \dotsc 3}$, of the cubic interpolation at $t
 		% Second Interpolation
 		\draw[dashed] (P_0-1) -- (P_1-2) -- (P_2-3);
 		
+		% Draw t line
+		\draw (7,6) -- (9, 6) node[pos=0, left]{$t$} node[pos=0, above]{0} node[pos=0.5, below]{0.5} node[pos=1, above]{1};
+		\foreach \t/\ttext in {7, 8, 9}
+			\draw (\t, 6+0.08) -- (\t, 6-0.08);
+		\draw[ultra thick] (7, 6) -- (8, 6);
+		
+		
 		\filldraw (P_0-1) circle (2pt) node[align=center, below right] {$P_{0 \dotsc 1}(1,3)$};
 		\filldraw (P_1-2) circle (2pt) node[align=center, above] {$P_{1 \dotsc 2}(3,5)$};
 		\filldraw (P_2-3) circle (2pt) node[align=center, below right] {$P_{2 \dotsc 3}(5,3)$};
@@ -725,20 +517,20 @@ Finally, the resulting point, $P_{0 \dotsc 3}$, of the cubic interpolation at $t
 		
 		% Interpolated Point
 		\filldraw (P_0-3) circle (2pt) node[align=center, below] {$P_{0 \dotsc 3}(3, 4) $};
+		
+		\draw[thick] (1,1) .. controls (1,5) and (5,5) .. (5,1);
 	\end{tikzpicture}
-	\caption{Resulting point of the cubic interpolation}
+	\caption{Resulting point of the cubic interpolation at $t=0.5$ and the cubic interpolant}
 \end{figure}
-
-\end{example}
 
 As such, the De Casteljau algorithm can be expressed as the following set of procedure:
 
 \begin{enumerate}
-\item Interpolate a set of points at $t \in [0, 1]$ for each of the consecutive pair of control points.
+\item Interpolate a set of points corresponding to a value $t \in [0,1]$ for each of the consecutive pair of control points.
 \item Repeat step \#1 with newly interpolated points, until a single point is left.
 \end{enumerate}
 
-Thus far, the B\'ezier curve has vaguely been mentioned, and its mathematical definition is yet unclear. However, this algorithm can be used to deduce the formal definition of a B\'ezier curve. Let $P_{a \dotsc b}(t)$ be a function that gives an interpolated point from a set of control points $P_a, P_{a+1}, P_{a+2},  \dotsc  , P_{b-1}, P_b$, where $a, b \in \mathbb Z_{\geq 0}$ and $a \geq b$. If $a = b$, $P_{a \dotsc b}(t) = P_a = P_b$. Next, let the control points of a B\'ezier curve be $P_0, P_1, P_2,  \dotsc  , P_{n-1}, P_{n}$. Performing a set of linear interpolation to consecutive pairs of control points at $t$ gives the following:
+This algorithm can be used to deduce the formal definition of a B\'ezier curve. Let $P_{a \dotsc b}(t)$ be a function that gives an interpolated point from a set of control points $P_a, P_{a+1}, P_{a+2},  \dotsc  , P_{b-1}, P_b$, where $a, b \in \mathbb Z_{\leq 0}, a \geq b$. If $a = b$, then $P_{a \dotsc b}(t) = P_a = P_b$. Next, let the control points of an $n$th degree B\'ezier curve be $P_0, P_1, P_2,  \dotsc  , P_{n-1}, P_{n}$. Performing a set of linear interpolation to consecutive pairs of control points at $t$ gives the following:
 
 \begin{equation_nogap}\begin{aligned}
 P_{0 \dotsc 1}(t)	& = P_0(1-t) + P_1t, \\
@@ -749,7 +541,7 @@ P_{n-1 \dotsc n}(t)	& = P_{n-1}(1-t) + P_nt. \\
 \\
 \end{aligned}\end{equation_nogap}
 
-The newly interpolated points can than be used to perform another set of interpolation.
+The newly interpolated points can than be used to perform another set of linear interpolations.
 
 \begin{equation_nogap}\begin{aligned}
 P_{0 \dotsc 2}(t)	& = [P_{0 \dotsc 1}(t)](1-t) + [P_{1 \dotsc 2}(t)]t, \\
@@ -806,7 +598,7 @@ P_{n-4 \dotsc n}(t)	& = P_{n-4}(1-t)^4 + 4P_{n-3}(1-t)^3t + 6P_{n-2}(1-t)^2t^2 +
 \\
 \end{aligned}\end{equation_nogap}
 
-A pattern that imitates binomial expansion of $((1-t) + t)^n$ emerges, along with the control points multiplied as coefficients of each terms. Continuing on a similar manner, the complete equation of interpolated B\'ezier curve is obtained.
+A pattern that imitates binomial expansion of $((1-t) + t)^n$ emerges, along with the control points multiplied as coefficients of each terms as noted by \citeA{PRAUTZ:2013}. Continuing on a similar manner, the complete equation of interpolated B\'ezier curve is obtained.
 
 \begin{multline}
 P_{0 \dotsc n}(t) = 	P_0 \binom{n}{0}(1-t)^n + P_1 \binom{n}{1}(1-t)^{n-1}t + P_2 \binom{n}{2}(1-t)^{n-2}t^2 \\
@@ -819,32 +611,19 @@ where $\binom{n}{k}$ is a binomial coefficient ($\binom{n}{k} = \frac{n!}{k!(n-k
 P_{0 \dotsc n}(t) = \sum_{i=0}^{n} {P_i \binom{n}{i} (1-t)^{n-i} t^i}.
 \end{equation}
 
-This, in fact, is the definition of the B\'ezier curve, which is written as $b_n(t)$ for curves with $n+1$ control points. As such, the mathematical development of B\'ezier curves from simple linear interpolation has been investigated so far. The following part of the essay will examine the properties of B\'eizer curves and why they allow is to be one of the most favoured method of describing curves in computer systems.
+This, in fact, is the definition of the B\'ezier curve, which is denoted $b_n(t)$. As such, the mathematical development of B\'ezier curves from simple linear interpolation has been investigated so far. The following part of the essay will examine the properties of B\'ezier curves and why they are useful when approximating a cycloid.
 
 \section{Definition and Important Properties of B\'ezier Curves}
 
-Thus far, we have investigated on the mathematical development of B\'ezier curves. However, before the attempt of approximating a cycloid can be made, the knowledge of definition and some important properties of B\'ezier curves must precede.
+Thus far, we have investigated on the mathematical development of B\'ezier curves from the De Casteljau algorithm. However, before the attempt of approximating a cycloid can be made, the knowledge of definition and some important properties of B\'ezier curves must precede.
 
-To reiterate the definition of B\'ezier curves,
+To reiterate, the definition of B\'ezier curves is
 
-\begin{definition}[\citeA{PRAUTZ:2013}]
 \begin{equation}
-b_n(t) = P_{0 \dotsc n} = \sum_{i=0}^{n} {P_i \binom{n}{i} (1-t)^{n-1} t^i}.
+b_n(t) = P_{0 \dotsc n} = \sum_{i=0}^{n} {P_i \binom{n}{i} (1-t)^{n-1} t^i} \text{\quad\cite{PRAUTZ:2013}}.
 \end{equation}
-\end{definition}
 
-Although there are numerous properties of B\'ezier curves, the two most important ones are regarding their initial and terminal points, and the tangent at both points.
-
-\begin{property} At $t=0$ and $t=1$, the interpolated points coincide with the first and last B\'ezier control points, respectively \cite{PRAUTZ:2013}.\end{property}
-
-This will be useful when determining the location of the first an last control points of B\'ezier approximation based on the original curve.
-
-\begin{property} The tangents at $t=0$ and $t=1$ pass through points $P_0$, $P_1$ and $P_{n-1}$, $P_n$, respectively \cite{PRAUTZ:2013}. \end{property}
-
-This property is not so easy to realize without a visual intuition. As such, the next example graphically investigates this property to aid the understanding.
-
-\begin{example}
-Let $P_0 = (1,1), P_1 = (2, 3), P_2 = (3,3),$ and $P_3 = (4, 1)$. Plotting the control points and the B\'ezier curve yields the following:
+Although there are numerous properties of B\'ezier curves, this investigation will utilize the following two. The first property is that, at $t=0$ and $t=1$, the interpolated points coincide with the first and last B\'ezier control points, respectively. The second property is that the tangents at $t=0$ and $t=1$ pass through points $P_0$, $P_1$ and $P_{n-1}$, $P_n$, respectively \cite{PRAUTZ:2013}. In the diagram below, the control points $P_0$ and $P_3$ explain the first property, and $P_1$ and $P_2$ lies on the tangents at $t=0$ and $t=1$ of the B\'ezier curve, respectively, which explains the second property.
 
 \begin{figure}[H]
 	\centering
@@ -881,16 +660,22 @@ Let $P_0 = (1,1), P_1 = (2, 3), P_2 = (3,3),$ and $P_3 = (4, 1)$. Plotting the c
 	\caption{Tangent lines of a cubic B\'ezier curve}
 \end{figure}
 
-The tangents at the initial and terminal points ($t=0$ and $t=1$) of the curve show that they indeed pass through $P_0$, $P_1$ and $P_{n-1}$, $P_n$ ($P_2$, $P_3$ in this case), respectively.
-\end{example}
+As such, two boundary conditions about the control points can be made for every approximation
 
-By exploting the properties of the B\'ezier curve, we can now make different approaches to approximating a cycloid using a B\'ezier curve.
+\begin{enumerate}
+\item The control points $P_0$ and $P_3$ meet with the first and last points of the original curve, respectively; and
+\item The control points $P_1$ and $P_2$ lie on the tangents at the first and last points of the original curve, respectively.
+\end{enumerate}
 
-\section{Approximation of Cycloids}
+In other words, if the B\'ezier approximation was to meet the boundary conditions, it will \textbf{tangentially coincide} with the original curve at $t=0$ and $t=1$. These conditions will allow us to easily evaluate the quality of the approximation.
 
-As mentioned in the introduction of this essay, the B\'ezier curve is one of the most predominant means of representing curves and shapes on computer systems. As such, the topic of representing various kinds of curves, such as circles and ellipses, has been thoroughly investigated along with the improvement of computer graphics. However, because the B\'ezier curve is essentially a parametric polynomial curve, it cannot give an exact, mathematically equivalent representation of non-polynomial curves, such as circles, ellipses, and graphs of transcendental functions, such as that of sine and cosine function. However, there has been many successful attempts in approximating different kinds of curves, especially regarding the conic sections, such as an approximation given by Dokken et al (1989), which approximates a unit circle with a maximum error in radius of $2*10^{-6}$ with only 8 piecewise B\'ezier curves. However, after a thorough research, it was evident that there is no formal attempt of approximation done for cycloids using a B\'ezier curve. This came to me as a shock, because cycloids themselves are defined parametrically like B\'ezier curves, and it is also relatively easy to understand and manipulate. As such, I have determined to investigate on the extent in which a B\'ezier curve can be used to approximate a cycloid.
+\section{B\'ezier Approximation of a Cycloid}
 
-\textbf{Cycloid} is a parametric curve that is defined as following:
+B\'ezier curve is a parametric curve, and one of the most rudimentary parametric curve is the cycloid. This investigation develop new method to approximate a cycloid using a B\'ezier curve, such as iterative numerical analysis. This new method is compared with the traditional methods, such as the Maclaurin polynomial, and the approximation of unit circle by \citeA{DOKKEN:1990}.
+
+
+
+Cycloid is a parametric curve that is defined as the following:
 
 \begin{equation}
 \begin{split}
@@ -899,7 +684,7 @@ y(\theta) & = 1 - \cos \theta.
 \end{split}
 \end{equation}
 
-This is a curve that is generated by plotting the path in which a point on a circle that is rolling on a smooth, straight surface passes through. Graphically, it is illustrated by Fig. 6.1
+This is a curve that is generated by plotting the path in which a point on a circle that is rolling on a smooth, straight surface passes through. Graphically, it is illustrated by Fig. 4.1.
 
 \begin{figure}[H]
 	\centering
@@ -921,10 +706,10 @@ This is a curve that is generated by plotting the path in which a point on a cir
 		\filldraw (3.14159, 2) circle (2pt) node[align=center, above] {$\theta = \pi$};
 		\filldraw (5.71238, 1) circle (2pt) node[align=center, right] {$\theta = \rfrac{3\pi}{2}$};
 	\end{tikzpicture}
-	\caption{An arc of cycloid}
+	\caption{An arc of a cycloid}
 \end{figure}
 
-Because this curve repeats infinitely, approximating one arc will yield a complete repeatable approximation of the curve. Moreover, since an arc of a cycloid is symmetrical at $\theta = \pi$, we only need to approximate $\theta \in [0, \pi]$ section of the arc, which is illustrated in Fig. 6.2.
+Because this curve repeats infinitely, approximating one arc will yield a complete repeatable approximation of the curve. Moreover, since an arc of a cycloid is symmetrical at $\theta = \pi$, we only need to approximate $\theta \in [0, \pi]$ section of the arc, which is illustrated in Fig. 4.2.
 
 \begin{figure}[H]
 	\centering
@@ -939,11 +724,14 @@ Because this curve repeats infinitely, approximating one arc will yield a comple
 			\draw (1pt,\y) -- (-1pt,\y) node[anchor=east,fill=white] {$\ytext$};
 			
 		\draw[domain=0:3.14159, samples=40] plot ({\x - sin(\x r)},{1 - cos(\x r)});
+		
+		\filldraw (0, 0) circle (2pt) node[align=center, left] {$(0,0)$};
+		\filldraw (3.14159, 2) circle (2pt) node[align=center, right] {$(\pi,2)$};
 	\end{tikzpicture}
 	\caption{Section of cycloid for $\theta \in [0, \pi]$}
 \end{figure}
 
-In order to make the comparison between the cycloid and the B\'ezier approximation easier, the cycloid can be redefined as following with respect to variable $t$ so that the arc in Fig 6.2 will be constructed for $t \in [0, 1]$.
+Since a B\'ezier approximation is defined for $t \in [0,1]$, the cycloid can be redefined as following with respect to variable $t$ so that the arc shown in Fig 4.2 will be constructed for $t \in [0, 1]$.
 
 \begin{equation}
 \begin{split}
@@ -952,16 +740,16 @@ y(t) & = 1 - \cos \pi t.
 \end{split}
 \end{equation}
 
-The three methods of approximation that will be investigated in this paper will be based on the Maclaurin polynomial, approximation of unit circle given by \citeA{DOKKEN:1990}, and numerical analysis. Although these are not the only methods of approximating a non-polynomial curve with a B\'ezier curve, they will allow a through comparison and holistic judgement of B\'ezier curve as a means of approximation to be made.
+The three methods of approximation that are investigated are based on the Maclaurin polynomial, approximation of unit semicircle given by \citeA{DOKKEN:1990}, and iterative numerical analysis. Although these are not the only methods of approximating a non-polynomial curve with a B\'ezier curve, they allow a thorough holistic judgement of B\'ezier curve as an approximant of a cycloid.
 
-In all three approximations, cubic B\'ezier curves will be used, because they are most commonly used in most of the popular computer-aided design (CAD) softwares, such as Photoshop \cite{FULLER:2007} and GIMP \cite{GOELKER:2007}, portraying them as being much more practical than curves of other degrees.
+In all three approximations, cubic B\'ezier curves are used, because they are most commonly used in popular computer-aided design (CAD) softwares, such as Adobe Photoshop \cite{FULLER:2007} and GIMP \cite{GOELKER:2007}, portraying them as being much more practical than those of other degrees.
 
-When evaluating the approximation, two approaches may be used: Extent of tangential approximation at initial and terminal points, and numerical error analysis.
+When evaluating an approximation, two approaches are used: its extent of tangential coincidence at initial and terminal points, and numerical error analysis.
 
-In Fig. 6.2, it shows that the initial and terminal points of the cycloid are $(0,0)$ and $(\pi, 2)$, respectively. Moreover, the calculating the derivatives at $t=0$ and $t=1$ also shows that it has vertical and horizontal tangents at the initial and terminal points, respectively.
+Fig. 4.2 shows that the initial and terminal points of the cycloid are $(0,0)$ and $(\pi, 2)$, respectively. Moreover, the calculating the derivatives at $t=0$ and $t=1$ also shows that it has vertical and horizontal tangents at the initial and terminal points, respectively.
 
 \begin{equation_nogap}\begin{aligned}
-\frac{dy}{dx} 	&= \frac{\frac{d}{dt}(1-\cos(\pi t)}{\frac{d}{dt}(\pi t - \sin(\pi t)} \\
+\frac{dy}{dx} 	&= \frac{\frac{d}{dt}(1-\cos(\pi t))}{\frac{d}{dt}(\pi t - \sin(\pi t))} \\
 			&= \frac{\pi\sin(\pi t)}{\pi - \pi\cos(\pi t)}. \\
 \\
 \end{aligned}\end{equation_nogap}
@@ -969,7 +757,7 @@ In Fig. 6.2, it shows that the initial and terminal points of the cycloid are $(
 By L'H\^opital's rule of indeterminate forms, at the initial point $t=0$,
 
 \begin{equation_nogap}\begin{aligned}
-\frac{dy}{dx}|_{t=0} 	&= \lim_{t\to 0^+} \frac{\pi\sin(\pi t)}{\pi - \pi\cos(\pi t)} \\ % Explain why it is one-sided limit
+\frac{dy}{dx}|_{t=0} 	&= \lim_{t\to 0^+} \frac{\pi\sin(\pi t)}{\pi - \pi\cos(\pi t)} \\ % Explain why it is one-sided limit !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 				&= \lim_{t\to 0^+} \frac{\pi^2\cos(\pi t)}{\pi^2\sin(\pi t)} \\
 				&= + \infty \text{ (Vertical tangent)} \\
 \\
@@ -978,20 +766,20 @@ By L'H\^opital's rule of indeterminate forms, at the initial point $t=0$,
 At the terminal point $t=1$,
 
 \begin{equation_nogap}\begin{aligned}
-\frac{dy}{dx}|_{t=1} 	&= \frac{\pi\sin(\pi * 0)}{\pi - \pi\cos(\pi * 0)} \\ % Explain why it is one-sided limit
+\frac{dy}{dx}|_{t=1} 	&= \frac{\pi\sin(\pi * 0)}{\pi - \pi\cos(\pi * 0)} \\
 				&= 0 \text{ (Horizontal tangent)}. \\
 \\
 \end{aligned}\end{equation_nogap}
 
-As such, assessing if the approximated curve tangentially coincides with the original cycloid will allow us to assess the quality of the approximation to some extent.
+As such, assessing if the approximated curve tangentially coincides with the original cycloid at $t=0,1$ allows us an assessment of the quality of the approximation to some extent.
 
-For the numerical analysis, we must define a error function that will yield numerical values for the accuracies of different approximations, which will allow a reasoned comparison to be made. Using the Pythagoras theorem, the Euclidean distance between the cycloid and the B\'ezier approximation at $t \in [0,1]$ can be computed, as following:
+For the error analysis, an error function $\epsilon (t)$ is used, which yields a numerical value of the accuracy of an approximation, allowing a quantitative comparison between the three approximations. Using the Pythagoras theorem, the Euclidean distance between the cycloid and the B\'ezier approximation at $t \in [0,1]$ can be computed as following:
 
 \begin{equation}
 \epsilon (t) = \sqrt{(x(t) - b_x(t))^2 + (y(t) - b_y(t))^2},
 \end{equation}
 
-where $x(t)$ and $y(t)$ are the $x$ and $y$ components of the parametric equations of a cycloid, and $b_x(t)$ and $x$ and $y$ components of the B\'ezier approximation. Thus, taking $\max\limits_{t \in [0, 1]} \epsilon (t)$, we can evaluate the maximum error of the approximation, obtaining another way to assess the quality of the approximation to some extent.
+where $x(t)$ and $y(t)$ are the $x$ and $y$ components of the parametric equations of a cycloid, and $b_x(t)$ and $b_y(t)$ are the $x$ and $y$ components of the B\'ezier approximation. Thus, by computing $\max\limits_{t \in [0, 1]} \epsilon (t)$, the maximum error of an approximation is evaluated, which gives us another way to assess the quality of an approximation to some degree.
 
 %However, a low maximum error does not necessarily guarantee the approximation to appear similar to the original cycloid. The following example shows why this is the case.
 %
@@ -1052,15 +840,15 @@ where $x(t)$ and $y(t)$ are the $x$ and $y$ components of the parametric equatio
 %
 %This disparity between the appearance and the actual mathematical quality of approximation allow us to understand the results of the approximation from numerical analysis later in this essay.
 
-\subsection{Maclaurin Polynomial}
+\subsection{Approximation Using the Maclaurin Polynomials}
 
-A Maclaurin polynomial $P_n(x)$ approximates a function $f(n)$ with order $n$ as following:
+A Maclaurin polynomial $P_n(x)$ approximates a function $f(x)$ with an order $n$ as following:
 
 \begin{equation}
 f(x) \approx P_n(x) = f(0) + f'(0)x + \frac{f''(0)}{2!}x^2 + \frac{f'''(0)}{3!} + \dotsc + \frac{f^{(n)}(0)}{n!}
 \end{equation}
 
-Using the Maclaurin polynomial, the parametric equations of cycloid can be approximated. Because a cubic B\'ezier curve is used, a Maclaurin polynomial with order of 3 must be used.
+Using the Maclaurin polynomial, the parametric equations of a cycloid can be approximated. Because a cubic B\'ezier curve is used, a Maclaurin polynomial with order of 3 is used.
 
 \begin{equation_nogap}\begin{aligned}
 x(t) 	& \approx x(0) + x'(0)t + \frac{x''(0)}{2!}t^2 + \frac{x'''(0)}{3!}t^3 \\
@@ -1072,7 +860,7 @@ y(t)	& \approx y(0) + y'(0)t + \frac{y''(0)}{2!}t^2 + \frac{y'''(0)}{3!}t^3 \\
 	\\
 \end{aligned}\end{equation_nogap}
 
-Let $b(t)$ be a cubic B\'ezier approximation of cycloid. To rearrange the Maclaurin polynomial into a B\'ezier form, we must first expand and simplify the definition of B\'ezier curve into a polynomial in terms of $t$.
+Let $b(t)$ be a cubic B\'ezier approximation of a cycloid. To rearrange the Maclaurin polynomial into a B\'ezier form, we first expand and simplify the definition of B\'ezier curve into a polynomial in terms of $t$.
 
 \begin{equation_nogap}\begin{aligned}
 b(t) 	& = \sum_{i=0}^{3} {P_i \binom{3}{i} (1-t)^{3-i} t^i} \\
@@ -1086,7 +874,7 @@ b(t) 	& = \sum_{i=0}^{3} {P_i \binom{3}{i} (1-t)^{3-i} t^i} \\
 Since
 
 \begin{equation_nogap}\begin{aligned}
-b_x(t) \approx x(t) \approx \frac{\pi^3}{6}t^3 \text{\qquad and \qquad} b_y(t)  \approx y(t) \approx \frac{\pi^2}{2}t^2, \\
+x(t) \approx b_x(t) = \frac{\pi^3}{6}t^3 \text{\qquad and \qquad} y(t) \approx b_y(t) = \frac{\pi^2}{2}t^2, \\
 \\
 \end{aligned}\end{equation_nogap}
 
@@ -1134,11 +922,11 @@ As such, the cubic Maclaurin approximation of cycloid yields the following B\'ez
 
 \begin{equation_nogap}\begin{aligned}
 P_0 = \begin{bmatrix}0 \\ 0\end{bmatrix}, \kern 3em P_1 = \begin{bmatrix}0 \\ 0\end{bmatrix} \\
-P_2 = \begin{bmatrix}0 \\ \frac{\pi^2}{6} \end{bmatrix}, \kern 3em P_3 = \begin{bmatrix} \frac{\pi^3}{6} \\ \frac{\pi^2}{2} \end{bmatrix} \\
+P_2 = \begin{bmatrix}0 \\ \frac{\pi^2}{6} \end{bmatrix}, \kern 3em P_3 = \begin{bmatrix} \frac{\pi^3}{6} \\ \frac{\pi^2}{2} \end{bmatrix}. \\
 \\
 \end{aligned}\end{equation_nogap}
 
-This approximation is shown in Fig. 6.6.
+This approximation is shown in Fig. 4.3.
 
 \begin{figure}[H]
 	\centering
@@ -1162,12 +950,12 @@ This approximation is shown in Fig. 6.6.
 		\draw[dashed] (0, 0) -- (0, 1.645);
 		\draw[dashed] (0, 1.645) -- (5.168, 4.935);
 	\end{tikzpicture}
-	\caption{Approximation using Maclaurin series}
+	\caption{B\'ezier approximation using the Maclaurin polynomials}
 \end{figure}
 
-This shws that the approximated B\'ezier curve will tangentially meet the original cycloid at $t=0$, satisfying the boundary condition at the initial point. However, as the curves approach their terminal points, the error in approximation becomes very large. Also, the B\'ezier curve does not coincide with the curve nor have same slope of tangent at $t=1$.
+This shows that the approximated B\'ezier curve will tangentially meet the original cycloid at $t=0$, satisfying the boundary condition at the initial point. However, as the curves approach their terminal points, the error in approximation becomes very large. Also, the B\'ezier curve does not tangentially coincide with the original cycloid at $t=1$.
 
-When error function of this approximation is plotted on a graph, it is clear that the maximum error occurs at $t=1$, as shown in Fig. 6.7.
+When error function of this approximation is plotted on a graph, it is clear that the maximum error occurs at $t=1$, as shown in Fig. 4.4.
 
 \begin{figure}[H]
 	\centering
@@ -1181,11 +969,11 @@ When error function of this approximation is plotted on a graph, it is clear tha
 
 A computation of error function at $t=1$ yields that the maximum error is approximately 3.566.
 
-\subsection{Approximation of Trigonometric Function by Dokken et al. (1990)}
+\subsection{Approximation Using B\'ezier Approximation of Unit Semicircle by Dokken et al. (1990)}
 
-Dokken et al gives an excellent B\'ezier approximation of a unit circle in their paper "Good approximation of circles by curvature-continuous Bezier curves" from 1990. In fact, they were able to approximate a quarter sector with maximum error in radius of $1.4*10^{-4}$, which is a maximum of 0.014\% error from the original circle. By taking the $x$ and $y$ components of their B\'ezier approximation, we can obtain a good approximation of cosine and sine functions, respectively.
+\citeA{DOKKEN:1990} gives an excellent B\'ezier approximation of a unit circle in their paper "Good approximation of circles by curvature-continuous Bezier curves" (1990). In fact, they were able to approximate a quarter sector with maximum error in radius of $1.4*10^{-4}$, which is a maximum of 0.014\% error from the original unit circle. By taking the $x$ and $y$ components of their B\'ezier approximation, we can obtain good approximations of cosine and sine functions, respectively.
 
-\citeA{DOKKEN:1990} proved that a cubic B\'ezier curve with following control points has a maximum radial error of $\frac{1}{27}$ from a unit semicircle.
+\citeA{DOKKEN:1990} proved that a cubic B\'ezier curve with following control points has a maximum radial error of $\frac{1}{27}$, or approximately 0.0370 from a unit semicircle.
 
 \begin{equation_nogap}\begin{aligned}
 P_0 & = \begin{bmatrix}1 \\ 0\end{bmatrix}, \kern 3em &P_1 & = \begin{bmatrix}1 \\ 0\end{bmatrix} + L\begin{bmatrix}0 \\ 1\end{bmatrix}, \\
@@ -1193,7 +981,7 @@ P_2 & = \begin{bmatrix}\cos \pi \\ \sin \pi \end{bmatrix} - L\begin{bmatrix}-\si
 \\
 \end{aligned}\end{equation_nogap}
 
-where $L = \frac{4}{3}\tan\frac{\pi}{4} = \frac{4}{3}$. Substituting the value of L and simplifying yields
+where $L = \frac{4}{3}\tan\frac{\pi}{4} = \frac{4}{3}$. Substituting L with $\frac{4}{3}$ and simplifying yields
 
 \begin{equation_nogap}\begin{aligned}
 P_0 & = \begin{bmatrix}1 \\ 0\end{bmatrix}, \kern 3em &P_1 & = \begin{bmatrix}1 \\ \frac{4}{3}\end{bmatrix}, \\
@@ -1209,7 +997,7 @@ y(t) (= \sin(\pi t)) &\approx 4(1-t)^2t + 4(1-t)t^2. \\
 \\
 \end{aligned}\end{equation_nogap}
 
-By substituting the $x$ and $y$ components of the above B\'ezier curve as approximations of trigonometric functions in the parametric equations of a cycloid, an approximation of a cycloid can be obtained as following.
+By substituting the $x$ and $y$ components of the B\'ezier approximation above as approximations of trigonometric functions in the parametric equations of a cycloid, an approximation of a cycloid can be obtained as following.
 
 \begin{equation_nogap}\begin{aligned}
 x(t) 	&= \pi t - \sin (\pi t) \\
@@ -1230,7 +1018,7 @@ y(t) 	&= 1 - \cos(\pi t) \\
 	\\
 \end{aligned}\end{equation_nogap}
 
-In order to put this parametric equations into a B\'ezier form, we will follow the similar process of simplifying the equation of a B\'ezier curve with respect to $t$ and equating the coefficients.
+In order to put these parametric equations into a B\'ezier form, we will follow the similar process of simplifying the equation of a B\'ezier curve with respect to $t$ and equating the coefficients as done in the previous approximation.
 
 Since
 
@@ -1241,7 +1029,7 @@ b(t) 	&= \sum_{i=0}^{3} {P_i \binom{3}{i} (1-t)^{3-i} t^i}. \\
 \\
 \end{aligned}\end{equation_nogap}
 
-the following 4 simultaneous equations for the $x$ component of the control points can be produced by equating the coefficients with that of the approximation above.
+the following 4 simultaneous equations for the $x$ component of the control points can be produced by equating the coefficients with the approximation of $x(t)$.
 
 \begin{equation_nogap}\begin{aligned}
 P_{0,x} &= 0, \\
@@ -1318,7 +1106,7 @@ Graphing the approximation and its error yields the following:
 	\caption{Error of the approximation}
 \end{figure}
 
-Fig 6.9 shows that the maximum error of the approximation is 0.0575, which occurs twice at $t=0.157$ and $t=0.843$. Compared to the previous approximation, this is clearly much closer to the original curve. Moreover, it coincides with the original curve at $t=0$ and $t=1$, and the slope of the tengent line at $t=1$ is 0 (horizontal), which is equal to that of the original curve. However, at $t=0$, the tangent lines of the two curves are perpendicular to each other. The cycloid has a vertical tangent, whereas, because the control points $P_0, P_1$ form a flat horizontal line, the B\'ezier approximation has a horizontal curve. This is shown more clearly in Fig. 6.10.
+Fig 4.6 shows that the maximum error of the approximation is 0.0575, which occurs twice at $t=0.157, t=0.843$. Compared to the previous approximation, this is clearly much closer to the original curve. Moreover, it coincides with the original curve at $t=0,1$, and the slope of the tengent line at $t=1$ is 0 (horizontal), which is equal to that of the original curve. However, at $t=0$, the tangent lines of the two curves are perpendicular to each other. The cycloid has a vertical tangent, whereas the B\'ezier approximation has a horizontal curve, because the control points $P_0, P_1$ form a flat horizontal line. This is shown more clearly in Fig. 4.7.
 
 \begin{figure}[H]
 	\centering
@@ -1349,11 +1137,11 @@ As such, this approximation fails to tangentially coincide the original cycloid 
 %
 %\frac{dy}{dx}_{B\acute ezier}
 
-\subsection{Iterative Numerical Approximation}
+\subsection{Approximation Using Iterative Numerical Analysis}
 
-With the help of numerical analysis using a computer, a very close approximation can be made. However, in order to do so, we must exploit the properties of B\'ezier curves.
+With the help of numerical analysis using a computer, a very approximation can be made. However, in order to do so, we must exploit the properties of B\'ezier curves.
 
-We know that the initial and terminal control points ($P_0$ and $P_3$, respectively) coincides with the interpolated point of the B\'ezier curve will be at $t=0$ and $t=1$, respectively. Moreover, the second and third control points ($P_1$ and $P_2$, respectively) will lay on the tangent of the original curve at $t=0$ and $t=1$ if the approximation were to tangentially coincide with the original curve at the initial and terminal points. Graphically, this can be represented as shown in Fig. 6.11.
+We know that the initial and terminal control points ($P_0$ and $P_3$, respectively) coincides with the interpolated point of the B\'ezier curve will be at $t=0$ and $t=1$, respectively. Moreover, the second and third control points ($P_1$ and $P_2$, respectively) will lay on the tangent of the original curve at $t=0$ and $t=1$ if the approximation were to tangentially coincide with the original curve at the initial and terminal points. Graphically, this is shown in Fig. 4.8.
 
 \begin{figure}[H]
 	\centering
@@ -1387,15 +1175,15 @@ P_2 & = \begin{bmatrix}\pi \\ 2\end{bmatrix} - \begin{bmatrix}v \\ 0\end{bmatrix
 \\
 \end{aligned}\end{equation_nogap}
 
-where $u, v \in \mathbb{R}^+$. As such, finding values of $u$ and $v$ that will minimize the maximum error $\max\limits_{t \in [0, 1]} \epsilon (t)$ will give a close approximation of a cycloid with a cubic B\'ezier curve that fits the criteria of initial and terminal points discussed before.
+where $u, v \in \mathbb{R}$. As such, finding $u, v$ that will minimize $\max\limits_{t \in [0, 1]} \epsilon (t)$ will give a close approximation of a cycloid that fits the boundary conditions.
 
-Let $\zeta (u, v)$ be a function that gives that maximum error of B\'ezier approximation for given values $u$ and $v$, or
+Let $\zeta (u, v)$ be a function that gives that maximum error of B\'ezier approximation for given $u, v$, or
 
 \begin{equation}
 \zeta (u, v) = \max\limits_{t \in [0, 1]} \epsilon (t).
 \end{equation}
 
-As such, $\argmin\limits_{u, v} (\zeta (u, v))$ will yield values $u, v$ that will give the best possible approximation. Graphing $\zeta (u, v)$ using GNU Octave yields the following:
+As such, $\argmin\limits_{u, v} (\zeta (u, v))$ will yield $u, v$ that will give the best possible approximation. The graph of $\zeta (u, v)$ is plotted using GNU Octave, which is shown in Fig. 4.9. It shows that there is only one minimum of $\zeta (u, v)$ for $u, v \in [-4, 4]$.
 
 \begin{figure}[H]
 	\centering
@@ -1403,9 +1191,9 @@ As such, $\argmin\limits_{u, v} (\zeta (u, v))$ will yield values $u, v$ that wi
 	\caption{Plot of $u, v \in [-4, 4]$ and $\zeta (u, v)$}
 \end{figure}
 
-Using GNU Octave, $\argmin\limits_{u, v} (\zeta (u, v))$ is approximated iteratively, with initial domains of $u \in [0, 2]$ and $v \in [1, 3]$, in which each iteration subdivides the initial interval into 10, finds the minimum, and finds the minimum around the $u, v$ discovered from previous iteration with a domain of $\pm$ the previous interval. The 10 subdivision is chosen because it is enough to ensure that the iteration will converge into the minimum within the initial domains, which can be deduced by examining Fig. 6.12. For the specific programming code, see Appendix A.
+Using GNU Octave, $\argmin\limits_{u, v} (\zeta (u, v))$ is approximated iteratively, with initial domains of $u \in [-4, 4]$ and $v \in [-4, 4]$, in which each iteration subdivides the initial interval into 10, finds the minimum, and reiterate the process to find the minimum around the $u, v$ discovered from previous iteration within the radius of previous interval. The 10 subdivision is chosen because it is small enough that the iteration converges into a global minimum within the initial domains. Moreover, it add approximately 1 significant figure per each iteration. For the specific programming code, see Appendix A.
 
-After 10 iteration, the approximation converged to $u=0.000988889$ and $v=2.50477$ with $\zeta (u, v) = 0.0809535$. As such, the control points of the B\'ezier approximation are
+After 10 iteration, the approximation converged to $u=0.000988889, v=2.50477$ with $\zeta (u, v) = 0.0809535$. As such, the control points of the B\'ezier approximation are
 
 \begin{equation_nogap}\begin{aligned}
 P_0 & = \begin{bmatrix}0 \\ 0\end{bmatrix}, \kern 3em &P_1 & = \begin{bmatrix}0 \\ 0.000988889\end{bmatrix}, \\
@@ -1429,14 +1217,14 @@ Graphing the B\'ezier approximation yields the following:
 			
 		\draw (0,0) .. controls (0.000988889, 0) and (0.636822653589793, 2) .. (3.14159265, 2);
 	\end{tikzpicture}
-	\caption{B\'ezier approximation using unit semicircle approximation by Dokken et al. (1990)}
+	\caption{B\'ezier approximation using iterative numerical analysis}
 \end{figure}
 
-Although this appears to closely approximate the original cycloid, it is not as good as the previous approximation with B\'ezier semicircle of Dokken et al. (1990), which had $\max\limits_{t \in [0, 1]} \epsilon (t)$ of 0.0575, compared to $\approx$ 0.0810 of this approximation. However, this approximation fits the boundary conditions of tangentially coinciding with the original cycloid at $t=0$ and $t=1$.
+Although this appears to closely approximate the original cycloid, it is not as good as the previous approximation that utilized the B\'ezier semicircle of Dokken et al. (1990), which had $\max\limits_{t \in [0, 1]} \epsilon (t)$ of 0.0575, compared to $\approx$ 0.0810 of this approximation. However, this approximation fits the boundary conditions of tangentially coinciding with the original cycloid at $t=0, 1$.
 
-\section{Evaluation}
+\section{Evaluation and Conclusion}
 
-Table 7.1 shows a comparison between the three methods of approximation.
+Table 5.1 shows a comparison between the three methods of approximation.
 
 \begin{table}[H]
 \begin{center}
@@ -1448,14 +1236,14 @@ Table 7.1 shows a comparison between the three methods of approximation.
     \midrule
     Semicircle Approximation by Dokken et al. (1990) & Yes & No & Yes & Yes & 0.0575 \\
     \midrule
-    Numerical Analysis & Yes & Yes & Yes & Yes & 0.0810 \\
+    Iterative Numerical Analysis & Yes & Yes & Yes & Yes & 0.0810 \\
     \bottomrule
     \end{tabular}
 \end{center}
-\caption{Comparison of B\'ezier approximations}
+\caption{Comparison of B\'ezier approximations of cycloids}
 \end{table}
 
-Despite the approximation from numerical analysis having met all the boundary conditions, it still fails to give the least error among the three. This is interesting, because it is shown that the satisfying the boundary conditions will not necessarily provide the best approximation. As such, the results show that, if the B\'ezier curve was to be used to approximate cycloids, a significant error is inevitable no matter which method of approximation were to be used. Moreover, the traditional method of using Maclaurin polynomial for approximation of a non-polynomial curve is shown to be not appropriate for B\'ezier approximations, unless much a B\'ezier curve of much higher degree is used. Overall, B\'ezier curve appears to be a good approximant of a cycloid to some extent.
+Despite the approximation from numerical analysis having met all the boundary conditions, it still fails to give the least error among the three. This is interesting, because it is shown that the satisfying the boundary conditions will not necessarily provide the best approximation. Also, the results show that, if the B\'ezier curve was to be used to approximate cycloids, a significant error is inevitable no matter which method of approximation is used. Moreover, the traditional method of using Maclaurin polynomial for approximation of a non-polynomial curve is shown to be not appropriate for B\'ezier approximants, unless a B\'ezier curve of much higher degree is used. Overall, B\'ezier curve appears to be a good approximant of a cycloid to some extent.
 
 \newpage
 
@@ -1468,7 +1256,71 @@ Despite the approximation from numerical analysis having met all the boundary co
 \section{GNU Octave Code for Numerical Analysis}
 
 \begin{verbatim}
-function extended_essay()   [u, v, minZeta] = approximate(0, 2, 1, 3, 0.1);   printf("u: %d\n", u);   printf("v: %d\n", v);   printf("min(zeta(u,v)): %d\n", minZeta);   printf("\n");      if (u <= 0)     u = 0.1;   endif      for i = 1:9     [u, v, minZeta] = approximate(u-10^(-i), u+10^(-i), v-10^(-i), v+10^(-i), 10^(-i-1));     printf("u: %d\n", u);     printf("v: %d\n", v);     printf("min(zeta(u,v)): %d\n", minZeta);     printf("\n");          if (u <= 0)       u = 10^(-i-1);     endif   endforendfunctionfunction retval = cycloid_x(t)  retval = pi * t - sin(pi * t);endfunctionfunction retval = cycloid_y(t)  retval = 1 - cos(pi * t);endfunctionfunction retval = bezier(t, P0, P1, P2, P3)  retval = P0 .* (1-t).^3 + 3 .* P1 .* (1-t).^2 .* t + 3 .* P2 .* (1-t) .* t.^2 + P3 .* t.^3;endfunctionfunction retval = epsilon(t, P0, P1, P2, P3) % t is scalar value, and P0~P3 are 2D vector.  Bx = bezier(t, P0(1), P1(1), P2(1), P3(1));  By = bezier(t, P0(2), P1(2), P2(2), P3(2));    retval = sqrt((cycloid_x(t)-Bx).^2 + (cycloid_y(t)-By).^2);endfunctionfunction retval = zeta(u, v) % Using t interval of 0.001  t = 0:0.001:1;  retval = max(epsilon(t, [0, 0], [0, u], [pi - v, 2], [pi, 2]));endfunctionfunction [u, v, minZeta] = approximate(u_start, u_end, v_start, v_end, interval)  minZeta = inf;  u = 0;  v = 0;    for i = u_start:interval:u_end    for j = v_start:interval:v_end      curZeta = zeta(i, j);            if (curZeta < minZeta)        minZeta = curZeta;        u = i;        v = j;      endif    endfor  endforendfunction
+function extended_essay()
+   [u, v, minZeta] = approximate(0, 2, 1, 3, 0.1);
+   printf("u: %d\n", u);
+   printf("v: %d\n", v);
+   printf("min(zeta(u,v)): %d\n", minZeta);
+   printf("\n");
+   
+   if (u <= 0)
+     u = 0.1;
+   endif
+   
+   for i = 1:9
+     [u, v, minZeta] = approximate(u-10^(-i), u+10^(-i), v-10^(-i), v+10^(-i), 10^(-i-1));
+     printf("u: %d\n", u);
+     printf("v: %d\n", v);
+     printf("min(zeta(u,v)): %d\n", minZeta);
+     printf("\n");
+     
+     if (u <= 0)
+       u = 10^(-i-1);
+     endif
+   endfor
+endfunction
+
+function retval = cycloid_x(t)
+  retval = pi * t - sin(pi * t);
+endfunction
+
+function retval = cycloid_y(t)
+  retval = 1 - cos(pi * t);
+endfunction
+
+function retval = bezier(t, P0, P1, P2, P3)
+  retval = P0 .* (1-t).^3 + 3 .* P1 .* (1-t).^2 .* t + 3 .* P2 .* (1-t) .* t.^2 + P3 .* t.^3;
+endfunction
+
+function retval = epsilon(t, P0, P1, P2, P3) % t is scalar value, and P0~P3 are 2D vector.
+  Bx = bezier(t, P0(1), P1(1), P2(1), P3(1));
+  By = bezier(t, P0(2), P1(2), P2(2), P3(2));
+  
+  retval = sqrt((cycloid_x(t)-Bx).^2 + (cycloid_y(t)-By).^2);
+endfunction
+
+function retval = zeta(u, v) % Using t interval of 0.001
+  t = 0:0.001:1;
+  retval = max(epsilon(t, [0, 0], [0, u], [pi - v, 2], [pi, 2]));
+endfunction
+
+function [u, v, minZeta] = approximate(u_start, u_end, v_start, v_end, interval)
+  minZeta = inf;
+  u = 0;
+  v = 0;
+  
+  for i = u_start:interval:u_end
+    for j = v_start:interval:v_end
+      curZeta = zeta(i, j);
+      
+      if (curZeta < minZeta)
+        minZeta = curZeta;
+        u = i;
+        v = j;
+      endif
+    endfor
+  endfor
+endfunction
 \end{verbatim}
 
 \end{appendices}
